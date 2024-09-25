@@ -1,8 +1,8 @@
 body {
-    background: rgb(42, 2, 56);
+    background: rgb(48, 3, 65);
     color: rgb(255, 255, 255);
-    padding: 10px;
-    font-family: arial;
+    padding: 15px;
+    font-family: 'Franklin Gothic Medium';
 }
 #all-contents {
   max-width: 800px;
@@ -11,11 +11,14 @@ body {
 
 /* navigation menu */
 nav {
-    background: rgb(61, 16, 77);
+    background: rgb(68, 18, 87);
    margin: 0 auto;
    margin-bottom: 20px;
     display: flex;
     padding: 10px;
+    border-style:solid;
+    border-width: 2px;
+    border-color:rgb(247, 247, 247);
 }
 h1 {
     display: flex;
@@ -30,6 +33,9 @@ h1 {
 .nav-li {
     display: inline-block;
     padding: 0 10px;
+    border-style:solid;
+    border-width:1px;
+    border-color:#eee;
 }
 a {
     text-decoration: none;
@@ -40,6 +46,9 @@ a {
 main {
     background: rgb(83, 3, 93);
     display: flex;
+    border-style:solid;
+    border-width:2px;
+    border-color:#ffffff;
 }
 .sidebar {
     margin-right: 25px;
