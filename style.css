@@ -36,6 +36,7 @@ h1 {
     border-style:solid;
     border-width:1px;
     border-color:#eee;
+    border-radius: 5px;
 }
 a {
     text-decoration: none;
@@ -81,7 +82,7 @@ h2, h3 {
         }
 
         #portfolio li {
-            background: #d802f9;
+            background: #810594;
             padding: 10px;
             border-radius: 10px;
             margin-bottom: 10px;
