@@ -9,7 +9,7 @@
 		.box {
 			width: 70px;
 			height: 70px;
-			background-color: teal;
+			background-color: rgb(168, 50, 50);
 			font-size: 300%;
 			text-align: center;
 			user-select: none;
@@ -76,10 +76,17 @@
 			turn it around! 
 			*/
 			function update() {
-				positionX = positionX + speed
-				moveBoxTo(positionX)
-				if (positionX > boardWidth)
+				positionX = positionX + speed;
+				moveBoxTo(positionX);
+				if (positionX > boardWidth){
+					speed *= -1;
+				};
+				if (positionX < 0){
+					speed *= -1;
+				};
 			};
+			
+
 
 			/* 
 			This Function will be called each time the box is clicked. Each time it is called,
@@ -89,7 +96,7 @@
 			function handleBoxClick() {
 				positionX = 0;
 				points = points + 1 
-				speed = speed + 3
+				speed = 3 * points + 10;
 				changeBoxText(points);
 			};
 
