@@ -108,8 +108,8 @@ h2, h3 {
             margin: 4px 2px;
             cursor: pointer;
           }
-          .button1 {background-color: #5a0073;} /* Green */
+          .button1 {background-color: #5a0073;}
           .button1:hover {
-            background-color: #d710ff;
-            color: white;
+            background-color: #e7e5e8;
+            color: rgb(255, 255, 255);
           }
