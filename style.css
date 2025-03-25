@@ -1,8 +1,8 @@
 body {
-    background: rgb(48, 3, 65);
+    background: rgb(10, 7, 11);
     color: rgb(255, 255, 255);
     padding: 15px;
-    font-family: 'Franklin Gothic Medium';
+    font-family: 'Comic Sans mf';
 }
 #all-contents {
   max-width: 800px;
@@ -11,14 +11,14 @@ body {
 
 /* navigation menu */
 nav {
-    background: rgb(68, 18, 87);
+    background: rgb(46, 40, 48);
    margin: 0 auto;
    margin-bottom: 20px;
     display: flex;
     padding: 10px;
     border-style:solid;
     border-width: 2px;
-    border-color:rgb(247, 247, 247);
+    border-color:rgb(255, 0, 0);
 }
 h1 {
     display: flex;
@@ -34,8 +34,8 @@ h1 {
     display: inline-block;
     padding: 0 10px;
     border-style:solid;
-    border-width:1px;
-    border-color:#eee;
+    border-width: 3px;
+    border-color:#ff0505;
     border-radius: 5px;
 }
 a {
@@ -45,11 +45,11 @@ a {
 
 /* main container area beneath menu */
 main {
-    background: rgb(83, 3, 93);
+    background: rgb(39, 26, 39);
     display: flex;
     border-style:solid;
     border-width:2px;
-    border-color:#ffffff;
+    border-color:#ff0000;
 }
 .sidebar {
     margin-right: 25px;
@@ -64,15 +64,30 @@ main {
     padding: 15px;
 }
 
-/* portfolio styles */
 #interests {
-    border: 4px rgb(219, 196, 196) ridge;
+    border: 4px rgb(255, 0, 0) ridge;
     padding: 8px;
 }
 h2, h3 {
     margin: 0px;
 }
-         /* portfolio styles */
+/* box section */ 
+.box {
+    background: rgb(46, 40, 48);
+   margin: 0 auto;
+   margin-bottom: 20px;
+    display: flex;
+    padding: 10px;
+    border-style:solid;
+    border-width: 4px;
+    border-color:rgb(255, 0, 0);
+    align-items: center;  
+    height: 125.5px;
+    width: 500px;
+    text-align: center;
+    font-size: 12.5px;
+}
+ /* portfolio styles */
          .content h1 {
             color: rgb(255, 255, 255);
         }
@@ -99,7 +114,7 @@ h2, h3 {
         }
         .button {
             border-style:solid;
-            color: rgb(245, 239, 239);
+            color: rgb(0, 0, 0);
             padding: 5px 8px;
             text-align: center;
             text-decoration: none;
@@ -108,8 +123,25 @@ h2, h3 {
             margin: 4px 2px;
             cursor: pointer;
           }
-          .button1 {background-color: #5a0073;}
+          .button1 {background-color: #000000;}
           .button1:hover {
             background-color: #e7e5e8;
             color: rgb(255, 255, 255);
           }
+
+ /* artwork section */
+ .yaoi {
+    background: rgb(46, 40, 48);
+   margin: 0 auto;
+   margin-bottom: 20px;
+    display: flex;
+    padding: 10px;
+    border-style:solid;
+    border-width: 4px;
+    border-color:rgb(255, 0, 0);
+    align-items: center;  
+    height: 750px;
+    width: 900px;
+    text-align: center;
+    font-size: 12.5px;
+}
