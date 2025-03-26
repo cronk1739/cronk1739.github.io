@@ -71,22 +71,7 @@ main {
 h2, h3 {
     margin: 0px;
 }
-/* box section */ 
-.box {
-    background: rgb(46, 40, 48);
-   margin: 0 auto;
-   margin-bottom: 20px;
-    display: flex;
-    padding: 10px;
-    border-style:solid;
-    border-width: 4px;
-    border-color:rgb(255, 0, 0);
-    align-items: center;  
-    height: 125.5px;
-    width: 500px;
-    text-align: center;
-    font-size: 12.5px;
-}
+
  /* portfolio styles */
          .content h1 {
             color: rgb(255, 255, 255);
@@ -98,14 +83,15 @@ h2, h3 {
         }
 
         #portfolio li {
-            background: #810594;
+            background: #120b13;
             padding: 10px;
             border-radius: 10px;
             margin-bottom: 10px;
         }
 
         #portfolio li:hover {
-            background: #eee;
+            background: #7f7c815e;
+            opacity: 1;
         }
 
         #portfolio a {
@@ -129,19 +115,3 @@ h2, h3 {
             color: rgb(255, 255, 255);
           }
 
- /* artwork section */
- .yaoi {
-    background: rgb(46, 40, 48);
-   margin: 0 auto;
-   margin-bottom: 20px;
-    display: flex;
-    padding: 10px;
-    border-style:solid;
-    border-width: 4px;
-    border-color:rgb(255, 0, 0);
-    align-items: center;  
-    height: 750px;
-    width: 900px;
-    text-align: center;
-    font-size: 12.5px;
-}
