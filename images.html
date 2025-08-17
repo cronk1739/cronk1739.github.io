@@ -4,82 +4,117 @@
     <head>
         <title>Images</title>
       <style>
-                  body {
-                background: rgb(16, 11, 18);
-                color: gray;
-                font-family: arial;
-                font-size: 20px;
-                padding: 10px;
-            }
-            #all-contents {
-              max-width: fit-content;
-                margin: auto;
+/* General reset */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #ff4d94, #d62d6e, #822659, #2b2b2b);
+  background-attachment: fixed;
+  color: #f2f2f2;
+  line-height: 1.6;
+}
 
-            }
-         
-           /* navigation menu */
+/* Section borders like original */
+.section {
+  border: 2px solid #ff4d94;
+  margin: 20px auto;
+  padding: 20px;
+  max-width: 1000px;
+  background: rgba(30, 20, 30, 0.9);
+  border-radius: 12px;
+}
+
+/* ----- Header with Nav Bar ----- */
+header.section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8em;
+  color: white;
+}
+
+/* Nav bar fixed buttons */
 nav {
-    background: rgb(46, 40, 48);
-   margin: 0 auto;
-   margin-bottom: 20px;
-    display: flex;
-    padding: 10px;
-    border-style:solid;
-    border-width: 2px;
-    border-color:rgb(255, 0, 0);
-}
-h1 {
-    display: flex;
-    align-items: center;
-    color: white;
-    flex: 1;
-    margin: 0;
-}
-#nav-ul {
-    list-style-image: none;
-}
-.nav-li {
-    display: inline-block;
-    padding: 0 10px;
-    border-style:solid;
-    border-width: 3px;
-    border-color:#ff0505;
-    border-radius: 5px;
-    
-}
-a {
-    text-decoration: none;
-    color: #fff;
+  display: flex;
+  gap: 12px;
 }
 
-        
-            /* main container area beneath menu */
-            main {
-                background: beige;
-                display: flex;
-                border-radius: 10px;
-                border-color: black;
-                box-shadow: 6px 6px #0000004b;
-                margin-left: 10%;
-                margin-right: 10%;
-            }
+nav a {
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #ff4d94, #cc2952);
+  transition: all 0.3s ease;
+  box-shadow: 0px 3px 6px rgba(0,0,0,0.4);
+}
+
+nav a:hover {
+  background: linear-gradient(135deg, #ff99b3, #ff335f);
+  transform: translateY(-2px);
+}
+
+/* ----- Main content layout ----- */
+.main-content {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.main-content img {
+  max-width: 250px;
+  border-radius: 10px;
+  border: 3px solid #ff4d94;
+}
+
+/* ----- Info Section ----- */
+.info h2 {
+  margin-top: 0;
+  color: #ff4d94;
+}
+
+.info h3 {
+  color: #ff99b3;
+}
+
+/* ----- Music Note Bullets ----- */
+ul.notes {
+  list-style: none;
+  padding-left: 0;
+}
+
+ul.notes li {
+  position: relative;
+  padding-left: 1.5em;
+  margin-bottom: 8px;
+  color: #f5d6e0;
+}
+
+ul.notes li::before {
+  content: "♪";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #ff4d94;
+  font-weight: bold;
+}
       </style>
     </head>
     <body>
         <div id="all-contents">
-            <nav>
-                <h1>Images</h1>
-                <ul id="nav-ul">
-                    <li class="nav-li">
-                        <a id="navanchor" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-li">
-                        <a id="navanchor" href="portfolio.html">Portfolio</a>
-                        </li>
-                    <li class="nav-li"><a id="navanchor" href="images.html">Images</a>
-                    </li>
-                </ul>
-            </nav>
+            <header class="section">
+              <h1>My First Website</h1>
+                <nav>
+                    <a href="index.html">Home</a>
+                    <a href="portfolio.html">Portfolio</a>
+                    <a href="images.html">Images</a>
+                    </nav>
+            </header>
                 <!-- Slideshow container -->
                 <div class="slideshow-container">
 
