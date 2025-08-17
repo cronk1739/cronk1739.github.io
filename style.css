@@ -144,20 +144,26 @@ ul.notes li::before {
   left: -1.2em;
   color: #000; /* bullet color */
   font-size: 1.2em; /* adjust size */
-.profile-card {
-  display: grid;
-  grid-template-areas:
-    "text"
-    "image";
-  position: relative;
 }
-  /* Profile gif area */
+.profile-card {
+  position: relative;
+   padding: 20px;
+  min-height: 300px;
+}
+
 .profile-text {
   grid-area: text;
 }
 
 .profile-image {
-  grid-area: image;
-  justify-self: start;
-  align-self: end;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 150px;
+  border-radius: 10px;
+  border: 3px solid #ff4d94;
 }
+
+
+
+

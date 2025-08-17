@@ -1,225 +1,273 @@
-
 <!DOCTYPE HTML>
 <html>
-    <head>
-        <title>Images</title>
-      <style>
-/* General reset */
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #ff4d94, #d62d6e, #822659, #2b2b2b);
-  background-attachment: fixed;
-  color: #f2f2f2;
-  line-height: 1.6;
-}
+<head>
+  <title>Images</title>
+  <style>
+    /* General reset */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #ff4d94, #d62d6e, #822659, #2b2b2b);
+      background-attachment: fixed;
+      color: #f2f2f2;
+      line-height: 1.6;
+    }
 
-/* Section borders like original */
-.section {
-  border: 2px solid #ff4d94;
-  margin: 20px auto;
-  padding: 20px;
-  max-width: 1000px;
-  background: rgba(30, 20, 30, 0.9);
-  border-radius: 12px;
-}
+    /* Section styling */
+    .section {
+      border: 2px solid #ff4d94;
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 1000px;
+      background: rgba(30, 20, 30, 0.9);
+      border-radius: 12px;
+    }
 
-/* ----- Header with Nav Bar ----- */
-header.section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    header.section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-header h1 {
-  margin: 0;
-  font-size: 1.8em;
-  color: white;
-}
+    header h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: white;
+    }
 
-/* Nav bar fixed buttons */
-nav {
-  display: flex;
-  gap: 12px;
-}
+    nav {
+      display: flex;
+      gap: 12px;
+    }
 
-nav a {
-  text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 25px;
-  font-weight: bold;
-  color: white;
-  background: linear-gradient(135deg, #ff4d94, #cc2952);
-  transition: all 0.3s ease;
-  box-shadow: 0px 3px 6px rgba(0,0,0,0.4);
-}
+    nav a {
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(135deg, #ff4d94, #cc2952);
+      transition: all 0.3s ease;
+      box-shadow: 0px 3px 6px rgba(0,0,0,0.4);
+    }
 
-nav a:hover {
-  background: linear-gradient(135deg, #ff99b3, #ff335f);
-  transform: translateY(-2px);
-}
+    nav a:hover {
+      background: linear-gradient(135deg, #ff99b3, #ff335f);
+      transform: translateY(-2px);
+    }
 
-/* ----- Main content layout ----- */
-.main-content {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-}
+    .image-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
 
-.main-content img {
-  max-width: 250px;
-  border-radius: 10px;
-  border: 3px solid #ff4d94;
-}
+    .gallery-image {
+      max-width: 80%;
+      height: auto;
+      border: 3px solid #ff4d94;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+      margin-bottom: 10px;
+    }
 
-/* ----- Info Section ----- */
-.info h2 {
-  margin-top: 0;
-  color: #ff4d94;
-}
+    body, html {
+      height: 100%;
+    }
 
-.info h3 {
-  color: #ff99b3;
-}
+    #all-contents {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
 
-/* ----- Music Note Bullets ----- */
-ul.notes {
-  list-style: none;
-  padding-left: 0;
-}
+    /* Slideshow */
+    .slideshow-container {
+      position: relative;
+      max-width: 1000px;
+      width: 100%;
+    }
 
-ul.notes li {
-  position: relative;
-  padding-left: 1.5em;
-  margin-bottom: 8px;
-  color: #f5d6e0;
-}
+    .mySlides {
+      display: none;
+    }
 
-ul.notes li::before {
-  content: "♪";
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #ff4d94;
-  font-weight: bold;
-}
-      </style>
-    </head>
-    <body>
-        <div id="all-contents">
-            <header class="section">
-              <h1>My First Website</h1>
-                <nav>
-                    <a href="index.html">Home</a>
-                    <a href="portfolio.html">Portfolio</a>
-                    <a href="images.html">Images</a>
-                    </nav>
-            </header>
-                <!-- Slideshow container -->
-                <div class="slideshow-container">
+    /* Arrows */
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      width: auto;
+      padding: 16px;
+      margin-top: -22px;
+      color: #ff4d94;
+      font-weight: bold;
+      font-size: 24px;
+      transition: 0.3s ease;
+      user-select: none;
+      z-index: 2;
+    }
 
-                    <!-- Full-width images with number and caption text -->
-                    <div class="mySlides fade">
-                      <div class="numbertext">1 / 10</div>
-                      <img src="/assets/img_RandomGuy.JPG" style="width:45%" style="align-items: center;">
-                      <div class="text">Awesome sauce guy</div>
-                    </div>
-                  
-                    <div class="mySlides fade">
-                      <div class="numbertext">2 / 10</div>
-                      <img src="/assets/img_EliChristianMartin.JPG" style="width:45%">
-                      <div class="text">Eli Christian Martin</div>
-                    </div>
-                  
-                    <div class="mySlides fade">
-                      <div class="numbertext">3 / 10</div>
-                      <img src="/assets/img_Kawaiilittleboy.JPG" style="width:45%">
-                      <div class="text">Me emoting on the haters</div>
-                    </div>
+    .next {
+      right: 0;
+    }
 
-                    <div class="mySlides fade">
-                      <div class="numbertext">4 / 10</div>
-                      <img src="/assets/img_MineCraftStevedeath.JPG" style="width:45%">
-                      <div class="text">Steve being blown up by creeper</div>
-                    </div>
-                  
-                    <div class="mySlides fade">
-                      <div class="numbertext">5 / 10</div>
-                      <img src="/assets/img_SkibidiTrashcanSebastian.JPG" style="width:45%">
-                      <div class="text"> Skibidi Trashcan Sebastian</div> 
-                    </div>
+    .prev {
+      left: 0;
+    }
 
-                    <div class="mySlides fade">
-                      <div class="numbertext">6 / 10</div>
-                      <img src="/assets/img_StairGremlin.JPG" style="width:45%">
-                      <div class="text">Stair Gremlin</div>
-                    </div>
+    .prev:hover, .next:hover {
+      color: #ffd6eb;
+    }
 
-                    <div class="mySlides fade">
-                      <div class="numbertext">7 / 10</div>
-                      <img src="/assets/img_SuperRichTeacher.JPG" style="width:45%">
-                      <div class="text">This rich teacher made $10k a month</div>
-                    </div>
+    /* Dots */
+    .dot {
+      height: 15px;
+      width: 15px;
+      margin: 0 5px;
+      background-color: #bbb;
+      border-radius: 50%;
+      display: inline-block;
+      transition: background-color 0.3s ease;
+    }
 
-                    <div class="mySlides fade">
-                      <div class="numbertext">8 / 10</div>
-                      <img src="/assets/img_TheLioneatsthesmallchild.JPG" style="width:45%">
-                      <div class="text">Evil lion</div>
-                    </div>
+    .dot.active {
+      background-color: #ff4d94;
+    }
 
-                    <div class="mySlides fade">
-                      <div class="numbertext">9 / 10</div>
-                      <img src="/assets/img_ThugBoy89.JPG" style="width:45%">
-                      <div class="text">#being a thug</div>
-                    </div>
+  </style>
+</head>
 
-                    <div class="mySlides fade">
-                      <div class="numbertext">10 / 10</div>
-                      <img src="/assets/img_Vendermachine.JPG" style="width:45%">
-                      <div class="text">Venger machine eat</div>
-                    </div>
+<body>
+  <div id="all-contents">
+    <header class="section">
+      <h1>My First Website</h1>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="images.html">Images</a>
+      </nav>
+    </header>
 
-                    <!-- Next and previous buttons -->
-                    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-                    <a class="next" onclick="plusSlides(1)">&#10095;</a>
-                  </div>
-                  <br>
-                  
-                  <!-- The dots/circles -->
-                  <div style="text-align:center">
-                    <span class="dot" onclick="currentSlide(1)"></span>
-                    <span class="dot" onclick="currentSlide(2)"></span>
-                    <span class="dot" onclick="currentSlide(3)"></span>
-                  </div>
-                  <script>
-var slideIndex = 1;
-showSlides(slideIndex);
+    <div class="slideshow-container">
 
-// Next/previous controls
-function plusSlides(n) {
-  showSlides(slideIndex += n);
-}
+      <!-- ALL 10 slides below -->
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">1 / 10</div>
+        <img src="/assets/img_RandomGuy.JPG" class="gallery-image" alt="Awesome sauce guy">
+        <p>Awesome sauce guy</p>
+      </div>
 
-// Thumbnail image controls
-function currentSlide(n) {
-  showSlides(slideIndex = n);
-}
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">2 / 10</div>
+        <img src="/assets/img_EliChristianMartin.JPG" class="gallery-image" alt="Eli Christian Martin">
+        <p>Eli Christian Martin</p>
+      </div>
 
-function showSlides(n) {
-  var i;
-  var slides = document.getElementsByClassName("mySlides");
-  var dots = document.getElementsByClassName("dot");
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";
-  }
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
-}
-</script>
-    </body>
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">3 / 10</div>
+        <img src="/assets/img_Kawaiilittleboy.JPG" class="gallery-image" alt="Me emoting on the haters">
+        <p>Me emoting on the haters</p>
+      </div>
+
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">4 / 10</div>
+        <img src="/assets/img_MineCraftStevedeath.JPG" class="gallery-image" alt="Steve death">
+        <p>Steve death</p>
+      </div>
+
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">5 / 10</div>
+        <img src="/assets/img_SkibidiTrashcanSebastian.JPG" class="gallery-image" alt="Skibidi Trashcan Sebastian">
+        <p>Skibidi Trashcan Sebastian</p>
+      </div>
+
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">6 / 10</div>
+        <img src="/assets/img_StairGremlin.JPG" class="gallery-image" alt="Stair Gremlin">
+        <p>Stair Gremlin</p>
+      </div>
+
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">7 / 10</div>
+        <img src="/assets/img_SuperRichTeacher.JPG" class="gallery-image" alt="Super Rich Teacher">
+        <p>This rich teacher made $10k a month</p>
+      </div>
+
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">8 / 10</div>
+        <img src="/assets/img_TheLioneatsthesmallchild.JPG" class="gallery-image" alt="Evil Lion">
+        <p>Evil lion</p>
+      </div>
+
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">9 / 10</div>
+        <img src="/assets/img_ThugBoy89.JPG" class="gallery-image" alt="Thug Boy">
+        <p>#being a thug</p>
+      </div>
+
+      <div class="mySlides fade section image-container">
+        <div class="numbertext">10 / 10</div>
+        <img src="/assets/img_Vendermachine.JPG" class="gallery-image" alt="Vending Machine">
+        <p>Venger machine eat</p>
+      </div>
+
+      <!-- Navigation arrows -->
+      <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+      <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    </div>
+
+    <br>
+
+    <!-- Dots -->
+    <div style="text-align:center">
+      <span class="dot" onclick="currentSlide(1)"></span>
+      <span class="dot" onclick="currentSlide(2)"></span>
+      <span class="dot" onclick="currentSlide(3)"></span>
+      <span class="dot" onclick="currentSlide(4)"></span>
+      <span class="dot" onclick="currentSlide(5)"></span>
+      <span class="dot" onclick="currentSlide(6)"></span>
+      <span class="dot" onclick="currentSlide(7)"></span>
+      <span class="dot" onclick="currentSlide(8)"></span>
+      <span class="dot" onclick="currentSlide(9)"></span>
+      <span class="dot" onclick="currentSlide(10)"></span>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    var slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+      showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+      showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+      var i;
+      var slides = document.getElementsByClassName("mySlides");
+      var dots = document.getElementsByClassName("dot");
+      if (n > slides.length) { slideIndex = 1 }
+      if (n < 1) { slideIndex = slides.length }
+      for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+      }
+      for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
+      }
+      slides[slideIndex - 1].style.display = "block";
+      if (dots[slideIndex - 1]) {
+        dots[slideIndex - 1].className += " active";
+      }
+    }
+  </script>
+</body>
 </html>
