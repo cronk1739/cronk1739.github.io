@@ -52,19 +52,19 @@ repeat: 3
  
   // TODO 0 complete
   // TODO 2: add a new property to all data shapes
-  for (var t = 0; i < dataShapes.length; i++)
+  for(var i = 0; i < dataShapes.length; i++){
     var currentShape = dataShapes[i];
- 
-    if (currentShape.color === "red") {
-      currentShape.goodbehavior === "bounce";
-    } 
-    else if (currentShape.color === "blue") {
-      currentShape.goodBehavior === "blink";
-      } 
-    else {
-        currentShape.goodBehavior === "spin";
-     
+    if(currentShape.color === 'red'){
+      currentShape.goodBehavior = "bounce";
     }
+    else if(currentShape.color === 'blue'){
+      currentShape.goodBehavior = "blink";
+    }
+    else{
+      currentShape.goodBehavior = "spin";
+    }
+  }
+
  
   // TODO 3-a: add a function that handles the static display type
    function handleStatic(data) {
