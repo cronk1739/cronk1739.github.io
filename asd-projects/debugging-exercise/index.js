@@ -3,7 +3,7 @@ $(document).ready(function () {
 /////////////////
 // initialization
 /////////////////
-
+debugger;
 // this section initializes some variables that will be used throughout the program
 var doubleMaxSpeed = 5;
 var maxGhosts = 10;
@@ -13,7 +13,7 @@ var boardHeight = $($board).height();
 var ghosts = [];
 var ghostRadius = 10;
 // modify these values if you want faster moving ghosts or a shorter countdown timer
-const FPS = 25;
+const FPS = 30;
 const initialDelay = 5_000;
 
 //////////
@@ -33,7 +33,7 @@ for (var i = 0; i < maxGhosts; i++) {
 // calling this function first starts a 5 second countdown
 // after the countdown, the update function will be called repeatedly 25 times per second
 startProgram();
-
+return startProgram
 ///////////////////////////
 // startup helper functions
 ///////////////////////////
@@ -53,7 +53,7 @@ function makeGhost(id) {
   ghost.x = Math.random() * maXX + ghostRadius;
   ghost.y = Math.random() * maxY + ghostRadius;
   ghost.speedX = decideSpeed();
-  ghost.speedY = desideSpeed();
+  ghost.speedY = decideSpeed();
 
   // assign a random color for the ghost's glow
   const colors = [
@@ -80,11 +80,11 @@ function decideSpeed() {
 
 // this generates an id for a ghost given the ghost's number
 function getId(number) {
-  return "ghost" + number; ()
+  return "ghost" + number();
 }
 
 // this adds a ghost into the HTML
-funtion addNewGhostElement(ghost, id) {
+function addNewGhostElement(ghost, id) {
   // this creates the HTML for a new ghost element
   var $ghost = $("<img>")
     .attr("id", id)
@@ -102,7 +102,7 @@ funtion addNewGhostElement(ghost, id) {
 //////////////////
 
 // this should move all of the ghosts
-function update) {
+function update() {
   // loop over the ghosts array. We use the maxGhosts variable instead of ghosts.length
   // to make seeing issues in the debugger slightly easier (in practice, you should use
   // ghosts.length, but do NOT change it here)
@@ -136,7 +136,7 @@ function moveGhost(ghost) {
 // this bounces ghosts if they hit a wall
 function bounceGhost(ghost) {
   // this bounces off the left wall
-  if (ghost.x < 0{
+  if (ghost.x < 0){
     ghost.x -= ghost.speedX;
     ghost.speedX *= -1;
   }
