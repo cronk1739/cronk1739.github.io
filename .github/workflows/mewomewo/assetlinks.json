@@ -1,0 +1,7 @@
+[{
+  "relation": ["lookalikes/allowlist"],
+  "target" : { "namespace": "web", "site": "https://cronk1739.github.io"}
+},{
+  "relation": ["lookalikes/allowlist"],
+  "target" : { "namespace": "web", "site": "https://cronk1739.github.io"}
+}]
