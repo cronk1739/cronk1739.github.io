@@ -121,7 +121,14 @@ function moveSnake() {
     stored in the Array snake.body and each part knows its current 
     column/row properties. 
   */
+  for (var i = snake.body.length - 1; i > 0; i++) {
+    var currentSnakeSquare = snake.body[i];
+    var snakeSquareInFront = snake.body[i - 1];
 
+    moveBodyAToBodyB(currentSnakeSquare, snakeSquareInFront);
+
+    repositionSquare(currentSnakeSquare);
+}
 
 
 
@@ -135,15 +142,32 @@ function moveSnake() {
     HINT: The snake's head will need to move forward 1 square based on the value
     of snake.head.direction which may be one of "left", "right", "up", or "down"
   */
-
-
-
+  if (snake.head.direction === "left") {
+  snake.head.column = snake.head.column - 1;
+}
+else if (snake.head.direction === "right"){
+  snake.head.column = snake.head.column - 1;
+}
+else if (snake.head.direction === "up"){
+  snake.head.column = snake.head.column -1;
+}
+else if (snake.head.direction === "down"){
+  snake.head.column = snake.head.column -1;
+}
 
 }
 
 // TODO 9: Create a new helper function
-
-
+function moveBodyAToBodyB(bodyA, bodyB){
+  bodyA.row = bodyB.row
+  bodyA.column = bodyB.column
+  bodyA.direction = bodyB.direction
+}
+//console.log("Moving body A to body B...");
+//setTimeout(() => {
+  //moveBodyAToBodyB(snake.body[1], snake.head);
+  //repositionSquare(snake.body[1]);
+//}, 2_000);
 
 
 
