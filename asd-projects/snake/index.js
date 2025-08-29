@@ -173,8 +173,14 @@ function hasHitWall() {
     
     HINT: What will the row and column of the snake's head be if this were the case?
   */
-
-
+  if (
+    snake.head.row < 0 ||
+    snake.head.row >= ROWS ||
+    snake.head.column < 0 ||
+    snake.head.column >= COLUMNS
+  ) {
+    return true
+  }
 
   return false;
 }
@@ -186,9 +192,9 @@ function hasCollidedWithApple() {
     
     HINT: Both the apple and the snake's head are aware of their own row and column
   */
-
-
-
+  if (snake.head.row === appple.row && snake.head.column === apple.column){
+    return true
+  }
   return false;
 }
 
@@ -215,10 +221,14 @@ function hasCollidedWithSnake() {
     HINT: Each part of the snake's body is stored in the snake.body Array. The
     head and each part of the snake's body also knows its own row and column.
   */
-
-
-
-  return false;
+  for (var x = 1; x < snake.body.length; ++){
+    if (
+      snake.head.row === snake.body[x].row && snake.head.column === snake.body[x].column
+    ){
+      return true
+    }
+  }
+return false;
 }
 
 function endGame() {
