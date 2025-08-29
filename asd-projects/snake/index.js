@@ -111,8 +111,7 @@ function checkForNewDirection(event) {
 
    console.log(snake.head.direction);     
 }
-
-function moveSnake() {
+  function moveSnake() {
   /* 
     TODO 10: Move each part of the snake's body such that it's body follows the head.
     
@@ -121,7 +120,7 @@ function moveSnake() {
     stored in the Array snake.body and each part knows its current 
     column/row properties. 
   */
-  for (var i = snake.body.length - 1; i > 0; i++) {
+  for (var i = snake.body.length - 1; i > 0; i--) {
     var currentSnakeSquare = snake.body[i];
     var snakeSquareInFront = snake.body[i - 1];
 
@@ -129,7 +128,6 @@ function moveSnake() {
 
     repositionSquare(currentSnakeSquare);
 }
-
 
 
 
@@ -146,16 +144,17 @@ function moveSnake() {
   snake.head.column = snake.head.column - 1;
 }
 else if (snake.head.direction === "right"){
-  snake.head.column = snake.head.column - 1;
+  snake.head.column = snake.head.column + 1;
 }
 else if (snake.head.direction === "up"){
-  snake.head.column = snake.head.column -1;
+  snake.head.row = snake.head.row - 1;
 }
 else if (snake.head.direction === "down"){
-  snake.head.column = snake.head.column -1;
+  snake.head.row = snake.head.row + 1;
 }
 
-}
+repositionSquare(snake.head)
+  }
 
 // TODO 9: Create a new helper function
 function moveBodyAToBodyB(bodyA, bodyB){
@@ -163,11 +162,7 @@ function moveBodyAToBodyB(bodyA, bodyB){
   bodyA.column = bodyB.column
   bodyA.direction = bodyB.direction
 }
-//console.log("Moving body A to body B...");
-//setTimeout(() => {
-  //moveBodyAToBodyB(snake.body[1], snake.head);
-  //repositionSquare(snake.body[1]);
-//}, 2_000);
+
 
 
 
