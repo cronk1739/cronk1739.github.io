@@ -173,15 +173,14 @@ function hasHitWall() {
     
     HINT: What will the row and column of the snake's head be if this were the case?
   */
-  //if (
-    snake.head.row < 0 
-    snake.head.row >= rows 
-    snake.head.column < 0 
-    snake.head.column >= columns
-  ) {
+  if (
+    snake.head.row < 0 ||
+    snake.head.row >= ROWS - 1 ||
+    snake.head.column < 0 ||
+    snake.head.column >= COLUMNS - 1
+  ){
     return true
   }
-
   return false;
 }
 
@@ -192,7 +191,7 @@ function hasCollidedWithApple() {
     
     HINT: Both the apple and the snake's head are aware of their own row and column
   */
-  if (snake.head.row === appple.row && snake.head.column === apple.column){
+  if (snake.head.row === apple.row && snake.head.column === apple.column){
     return true
   }
   return false;
@@ -221,7 +220,7 @@ function hasCollidedWithSnake() {
     HINT: Each part of the snake's body is stored in the snake.body Array. The
     head and each part of the snake's body also knows its own row and column.
   */
-  for (var x = 1; x < snake.body.length; ++){
+  for (var x = 1; x < snake.body.length; x++) {
     if (
       snake.head.row === snake.body[x].row && snake.head.column === snake.body[x].column
     ){
@@ -243,6 +242,7 @@ function endGame() {
   highScoreElement.text("High Score: " + calculateHighScore());
   scoreElement.text("Score: 0");
   score = 0;
+  alert("HAHA YOU LOST LOSER ;3")
 
   // restart the game after 500 ms
   setTimeout(init, 500);
@@ -364,8 +364,14 @@ function getRandomAvailablePosition() {
       not occupied by a snakeSquare in the snake's body. If it is then set 
       spaceIsAvailable to false so that a new position is generated.
     */
-
-
+    for( var z = 0; z < snake.body.length; z++){
+      if (
+        snake.body[z].row === randomPosition.row && snake.body[z].column === randomPosition.column
+      ){
+        spaceIsAvailable = false;
+        break
+      }
+    }
 
   }
 
