@@ -3,12 +3,14 @@ $(document).ready(function () {
 $("<div>")
 .css("height", 15)
 .css("width", 15)
-.css("background-color", "white")
+.css("background-color", "black"
 .css("position", "absolute")
 .css("top", 42)
 .css ("left", 42)
 .appendTo("#die")
-$("#die").on("click", rollDie);
+)
+
+$("#die").on("click", rollDie)
 
 
 function makeDot(top, left, die){
@@ -26,7 +28,8 @@ function rollDie() {
 $("#die"). empty()
 var randomNum = Math. ceil (Math. random() * 6);
 alert("You rolled a " + randomNum);
-if (randomNum = 1) { makeDot (42, 42, "#die"); // middle middle
+if (randomNum = 1) { 
+  makeDot (42, 42, "#die"); // middle 
 }
 
 else if (randomNum === 2) {
@@ -34,9 +37,9 @@ else if (randomNum === 2) {
  makeDot (75, 75, "#die") // bottom right
 }
 else if (randomNum === 3) {
-makeDot (10, 10,"#die"); // top left
-makeDot (75, 75, "#die") // bottom right
-makeDot (42, 42, "#die") // middle middle
+  makeDot (10, 10,"#die"); // top left
+  makeDot (75, 75, "#die") // bottom right
+  makeDot (42, 42, "#die") // middle 
 }
 
 else if (randomNum === 4) { 
@@ -47,7 +50,7 @@ makeDot (75, 10, "#die") // bottom left
 }
 
 else if (randomNum === 5) {
-makeDot (42, 42, "#die"); // middle middle
+makeDot (42, 42, "#die"); // middle 
 makeDot (75, 75, "#die") // bottom right
 makeDot (10, 10, "#die") // top left
 makeDot (10, 75, "#die") // top right
