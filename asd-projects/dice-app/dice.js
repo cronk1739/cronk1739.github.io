@@ -19,7 +19,7 @@ $("<div»")
 .css("left", left)
 .css ("background-color", "white")
 .css("position", "absolute")
-.appendTo (die);
+.appendTo(die);
 }
 
 function rollDie() {
@@ -57,7 +57,7 @@ makeDot (75, 10, "#die") // bottom left
 else if (randomNum = 6){
 makeDot (75, 75, "#die") // bottom right
 makeDot (10, 10, "#die") // top left
-makeDot (10, 75, "#die") // top rigit
+makeDot (10, 75, "#die") // top right
 makeDot (75, 10, "#die") // bottom left
 makeDot (42, 10, "#die") // middle left
 makeDot (42, 75, "#die") // bottom left
