@@ -19,7 +19,7 @@ $("<div>")
 function rollDie() {
 $('#die').empty()
 var randomNum = Math.ceil(Math.random() * 6);
-console.log("You rolled a " + randomNum + "!! :3")
+console.log("You rolled a " + randomNum + "!!")
 alert("You rolled a " + randomNum + "!! :3")
 
 if (randomNum === 1) { 
