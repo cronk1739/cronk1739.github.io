@@ -6,7 +6,6 @@ function runProgram(){
   ////////////////////////////////////////////////////////////////////////////////
   //////////////////////////// SETUP /////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////
-
   // Constant Variables
   var FRAME_RATE = 60;
   var FRAMES_PER_SECOND_INTERVAL = 1000 / FRAME_RATE;
@@ -35,7 +34,8 @@ function runProgram(){
 
   Note: You can have multiple event listeners for different types of events.
   */
-  $(document).on('keydown', handleKeyDown);                          
+  $(document).on('keydown', handleKeyDown);    
+  $(document).on("keyup", handleKeyUp)                      
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CORE LOGIC ///////////////////////////////////////////
@@ -46,8 +46,9 @@ function runProgram(){
   by calling this function and executing the code inside.
   */
   function newFrame() {
-    repositionGameItem()
-    redrawGameItem()
+    repositionGameItem();
+    wallCollision();
+    redrawGameItem();
   }
   
   /* 
@@ -60,17 +61,39 @@ function runProgram(){
     console.log(event.which);
     if (event.which === KEY.LEFT) {
   console.log("left pressed");
+  walker.speedX = -5
 }
   if (event.which === KEY.RIGHT) {
   console.log("right pressed");
+  walker.speedX = 5
 }
   if (event.which === KEY.UP) {
   console.log("up pressed");
+  walker.speedY = -5
 }
   if (event.which === KEY.DOWN) {
   console.log("down pressed");
+  walker.speedY = 5
 }
   }
+function handleKeyUp(event){
+  if(event.which === KEY.LEFT){
+    console.log("stop?");
+    walker.speedX = 0
+  }
+   if(event.which === KEY.RIGHT){
+    console.log("stop?");
+    walker.speedX = 0
+   }
+    if(event.which === KEY.UP){
+    console.log("stop?");
+    walker.speedY = 0
+    }
+     if(event.which === KEY.DOWN){
+    console.log("stop?");
+    walker.speedY = 0
+     }
+}
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////// HELPER FUNCTIONS ////////////////////////////////////
@@ -85,11 +108,17 @@ function runProgram(){
     $(document).off();
   }
   function repositionGameItem(){
-    walker.speedX + walker.x;
-    walker.speedY + walker.y;
+    walker.x = walker.speedX + walker.x;
+    walker.y = walker.speedY + walker.y;
   }
   function redrawGameItem(){
     $("#walker").css("left", walker.x)
     $("#walker").css("top", walker.y)
+  }
+  function wallCollision(){
+    if(walker >= walker.x && walker.y){
+      walker.x -= walker.speedX;
+      walker.y -= walker.speedY;
+    }
   }
 }
