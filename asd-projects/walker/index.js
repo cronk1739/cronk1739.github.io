@@ -15,7 +15,12 @@ function runProgram(){
     "speedX": 0,
     "speedY": 0,
   }
-  
+  var walker2 = {
+    "x": 100,
+    "y": 100,
+    "speedX": 0,
+    "speedY": 0,
+  }
   // Game Item Objects
   const KEY = {
   "ENTER": 13,
@@ -23,6 +28,10 @@ function runProgram(){
   "RIGHT": 39,
   "UP": 38,
   "DOWN": 40,
+  "W": 87,
+  "A": 65,
+  "S": 83,
+  "D": 68,
 };
 
   // one-time setup
@@ -75,6 +84,23 @@ function runProgram(){
   console.log("down pressed");
   walker.speedY = 5
 }
+
+if (event.which === KEY.A) {
+  console.log("left pressed");
+  walker2.speedX = -5
+}
+  if (event.which === KEY.D) {
+  console.log("right pressed");
+  walker2.speedX = 5
+}
+  if (event.which === KEY.W) {
+  console.log("up pressed");
+  walker2.speedY = -5
+}
+  if (event.which === KEY.S) {
+  console.log("down pressed");
+  walker2.speedY = 5
+  }
   }
 function handleKeyUp(event){
   if(event.which === KEY.LEFT){
@@ -93,6 +119,22 @@ function handleKeyUp(event){
     console.log("stop?");
     walker.speedY = 0
      }
+     if(event.which === KEY.D){
+    console.log("stop?");
+    walker2.speedX = 0
+  }
+   if(event.which === KEY.A){
+    console.log("stop?");
+    walker2.speedX = 0
+   }
+    if(event.which === KEY.W){
+    console.log("stop?");
+    walker2.speedY = 0
+    }
+     if(event.which === KEY.S){
+    console.log("stop?");
+    walker2.speedY = 0
+     }
 }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -110,10 +152,14 @@ function handleKeyUp(event){
   function repositionGameItem(){
     walker.x = walker.speedX + walker.x;
     walker.y = walker.speedY + walker.y;
+    walker2.x = walker2.speedX + walker2.x;
+    walker2.y = walker2.speedY + walker2.y;
   }
   function redrawGameItem(){
     $("#walker").css("left", walker.x)
     $("#walker").css("top", walker.y)
+    $("#walker2").css("top", walker2.y)
+    $("#walker2").css("left", walker2.x)
   }
   function wallCollision(){
   if(walker.x >= $("#board").width() - 50 ||
@@ -123,6 +169,14 @@ function handleKeyUp(event){
   if(walker.y >= $("#board").height() - 50 ||
     walker.y <= 0){
     walker.y -= walker.speedY;
+    }
+    if(walker2.x >= $("#board").width() - 50 ||
+    walker2.x <= 0){
+    walker2.x -= walker2.speedX;
+    }
+    if(walker2.y >= $("#board").height() - 50 ||
+    walker2.y <= 0){
+    walker2.y -= walker2.speedY;
     }
  }
 }
