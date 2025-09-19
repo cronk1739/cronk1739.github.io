@@ -34,6 +34,7 @@ function runProgram(){
   "D": 68,
 };
 
+
   // one-time setup
   var interval = setInterval(newFrame, FRAMES_PER_SECOND_INTERVAL);   // execute newFrame every 0.0166 seconds (60 Frames per second)
 
@@ -45,7 +46,7 @@ function runProgram(){
   */
   $(document).on('keydown', handleKeyDown);    
   $(document).on("keyup", handleKeyUp);
-  $("#board").on("click").css("background-color", changeColour);                      
+  $("#board").on("click", changeColour)                      
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CORE LOGIC ///////////////////////////////////////////
@@ -137,10 +138,12 @@ function handleKeyUp(event){
     walker2.speedY = 0
      }
 }
-function changeColour(event){
-  var randomColor = "#d04a4aff".replace(/0/g, function meow() {
+
+  var randomColor = "#000000".replace(/0/g, function () {
   return (~~(Math.random() * 16)).toString(16);
 });
+function changeColour(){
+  $("#board").css("background", randomColor)
 }
 
   ////////////////////////////////////////////////////////////////////////////////

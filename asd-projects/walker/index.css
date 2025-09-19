@@ -14,20 +14,21 @@ margin: 0;
   border: 1px solid white;
   background-color: black;
   position: relative;
+  margin: auto;
 }
 
 #walker {
-  background-color: teal;
-  width: 50px;
-  height: 50px;
+  background: url(assets/ELI.png);
+  width: 55px;
+  height: 55px;
   position: absolute;
 /*   left: 100px; */  /* Uncomment if you want to set a "starting" position */
 /*   top: 100px;  */  /* Uncomment if you want to set a "starting" position */
 
 }
 #walker2 {
-  background-color: brown;
-  width: 50px;
-  height: 50px;
+  background: url(assets/Zach.png);
+  width: 55px;
+  height: 55px;
   position: absolute;
 }
