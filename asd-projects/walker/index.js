@@ -44,7 +44,8 @@ function runProgram(){
   Note: You can have multiple event listeners for different types of events.
   */
   $(document).on('keydown', handleKeyDown);    
-  $(document).on("keyup", handleKeyUp)                      
+  $(document).on("keyup", handleKeyUp);
+  $("#board").on("click").css("background-color", changeColour);                      
 
   ////////////////////////////////////////////////////////////////////////////////
   ///////////////////////// CORE LOGIC ///////////////////////////////////////////
@@ -136,6 +137,11 @@ function handleKeyUp(event){
     walker2.speedY = 0
      }
 }
+function changeColour(event){
+  var randomColor = "#d04a4aff".replace(/0/g, function meow() {
+  return (~~(Math.random() * 16)).toString(16);
+});
+}
 
   ////////////////////////////////////////////////////////////////////////////////
   ////////////////////////// HELPER FUNCTIONS ////////////////////////////////////
@@ -180,3 +186,4 @@ function handleKeyUp(event){
     }
  }
 }
+
