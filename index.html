@@ -9,7 +9,7 @@
         <div id="desktop">
             <div id="icons">
                 <div class="icon" data-href="settings" data-color="#3b82f6" tabindex="0">
-                    <span class="glyph folder blue"></span>
+                    <img class="app-icon" src="https://images.vexels.com/media/users/3/143276/isolated/preview/98336182a8a47d620c44bc80a1a4abdc-cog-wheel.png" alt="Settings" />
                     <span>Settings</span>
                 </div>
                 <div class="icon" data-href="portfolio.html" data-color="#10b981" tabindex="0">
@@ -17,8 +17,12 @@
                     <span>Portfolio</span>
                 </div>
                 <div class="icon" data-href="images.html" data-color="#ef4444" tabindex="0">
-                    <span class="glyph folder red"></span>
+                    <img class="app-icon" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLvwmXlstUSTVmA0C2KWphEIlqJr1mk3ySrQ&s" alt="Images" />
                     <span>Images</span>
+                </div>
+                <div class="icon" data-href="newer-mini-projects/drawing.html" data-color="#8b5cf6" tabindex="0">
+                    <img class="app-icon" src="assets/drawing-icon.svg" alt="Drawing" />
+                    <span>Drawing</span>
                 </div>
                 <!-- Secret icon removed per request -->
             </div>
@@ -38,6 +42,7 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="#" id="start-settings">Settings</a></li>
+                    <li><a href="newer-mini-projects/drawing.html">Drawing</a></li>
                 </ul>
             </div>
         </div>
@@ -46,6 +51,33 @@
         // Desktop icon interactions
             (function(){
             const icons = document.querySelectorAll('.icon');
+            const iconsWrap = document.getElementById('icons');
+
+            // make icons container positioning context for absolute-placed icons
+            if(getComputedStyle(iconsWrap).position === 'static') iconsWrap.style.position = 'relative';
+
+            // load saved icon positions from localStorage
+            function loadIconPositions(){
+                try{
+                    const raw = localStorage.getItem('desktopIconPositions');
+                    if(!raw) return {};
+                    return JSON.parse(raw);
+                }catch(e){ return {}; }
+            }
+            function saveIconPositions(map){
+                try{ localStorage.setItem('desktopIconPositions', JSON.stringify(map)); }catch(e){}
+            }
+            const savedPositions = loadIconPositions();
+            // apply saved positions (if any)
+            icons.forEach(icon=>{
+                const key = icon.dataset.href || icon.textContent.trim();
+                const pos = savedPositions[key];
+                if(pos && typeof pos.left === 'number' && typeof pos.top === 'number'){
+                    icon.style.position = 'absolute';
+                    icon.style.left = pos.left + 'px';
+                    icon.style.top = pos.top + 'px';
+                }
+            });
             const windows = document.getElementById('windows');
             const taskbarIcons = document.getElementById('taskbar-icons');
             let topZ = 1000;
@@ -149,10 +181,52 @@
 
             icons.forEach(icon=>{
                 let clickCount = 0; let clickTimer = null;
-                icon.addEventListener('click', (e)=>{
-                    clickCount++; if(clickCount===1){ icon.classList.toggle('selected'); clickTimer = setTimeout(()=>{ clickCount=0; }, 300); } else if(clickCount===2){ clearTimeout(clickTimer); clickCount=0; const href = icon.dataset.href; if(href) createWindow(icon.textContent.trim(), href); }
+                // drag state for this icon
+                let dragState = { dragging:false, moved:false, pid:null, sx:0, sy:0, startLeft:0, startTop:0 };
+
+                // pointerdown to start Alt+drag move
+                icon.addEventListener('pointerdown', (e)=>{
+                    // only start move when Alt is pressed
+                    if(!e.altKey) return;
+                    e.preventDefault();
+                    dragState.dragging = true; dragState.pid = e.pointerId; dragState.sx = e.clientX; dragState.sy = e.clientY;
+                    // ensure icon is absolutely positioned relative to iconsWrap
+                    const wrapRect = iconsWrap.getBoundingClientRect();
+                    const iconRect = icon.getBoundingClientRect();
+                    // compute left/top relative to wrap
+                    const curLeft = iconRect.left - wrapRect.left + iconsWrap.scrollLeft;
+                    const curTop = iconRect.top - wrapRect.top + iconsWrap.scrollTop;
+                    // set absolute positioning if not already
+                    if(getComputedStyle(icon).position !== 'absolute'){
+                        icon.style.position = 'absolute';
+                        icon.style.left = Math.round(curLeft) + 'px';
+                        icon.style.top = Math.round(curTop) + 'px';
+                    }
+                    dragState.startLeft = parseFloat(icon.style.left) || 0; dragState.startTop = parseFloat(icon.style.top) || 0;
+                    icon.setPointerCapture(dragState.pid);
+
+                    function onMove(ev){ if(!dragState.dragging || ev.pointerId !== dragState.pid) return; const dx = ev.clientX - dragState.sx; const dy = ev.clientY - dragState.sy; const rawLeft = Math.max(0, Math.round(dragState.startLeft + dx)); const rawTop = Math.max(0, Math.round(dragState.startTop + dy)); const GRID = 16; const newLeft = Math.round(rawLeft / GRID) * GRID; const newTop = Math.round(rawTop / GRID) * GRID; icon.style.left = newLeft + 'px'; icon.style.top = newTop + 'px'; dragState.moved = true; }
+                    function onUp(ev){ if(ev.pointerId !== dragState.pid) return; try{ icon.releasePointerCapture(dragState.pid);}catch(err){} dragState.dragging = false; dragState.pid = null; document.removeEventListener('pointermove', onMove); document.removeEventListener('pointerup', onUp);
+                        // persist positions
+                        const positions = loadIconPositions();
+                        const key = icon.dataset.href || icon.textContent.trim();
+                        positions[key] = { left: Math.round((parseFloat(icon.style.left)||0)), top: Math.round((parseFloat(icon.style.top)||0)) };
+                        saveIconPositions(positions);
+                        // mark moved briefly to suppress click/dblclick
+                        icon.dataset.moved = '1'; setTimeout(()=>{ delete icon.dataset.moved; }, 150);
+                    }
+
+                    document.addEventListener('pointermove', onMove);
+                    document.addEventListener('pointerup', onUp);
                 });
-                icon.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const href = icon.dataset.href; if(href) createWindow(icon.textContent.trim(), href); } });
+
+                icon.addEventListener('click', (e)=>{
+                    // ignore click if this icon was just moved
+                    if(icon.dataset.moved) return;
+                    clickCount++; if(clickCount===1){ icon.classList.toggle('selected'); clickTimer = setTimeout(()=>{ clickCount=0; }, 300); } else if(clickCount===2){ clearTimeout(clickTimer); clickCount=0; const href = icon.dataset.href; if(href){ if(href === 'settings'){ createSettingsWindow(); } else { createWindow(icon.textContent.trim(), href); } }
+                    }
+                });
+                icon.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const href = icon.dataset.href; if(href){ if(href === 'settings'){ createSettingsWindow(); } else { createWindow(icon.textContent.trim(), href); } } } });
             });
 
             // special handling for settings icon (open internal settings UI)
@@ -199,6 +273,8 @@
                 win.querySelector('.minimize').addEventListener('click', ()=> win.style.display='none');
                 // basic drag
                 (function(){ const bar = win.querySelector('.titlebar'); let pid=null, sx=0, sy=0, ox=0, oy=0; function mv(e){ if(e.pointerId!==pid) return; win.style.left = (ox + e.clientX - sx) + 'px'; win.style.top = (oy + e.clientY - sy) + 'px'; } function up(e){ if(e.pointerId!==pid) return; try{ bar.releasePointerCapture(pid);}catch(err){} pid=null; document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); } bar.addEventListener('pointerdown', (e)=>{ if(e.target.closest('button') || e.target.closest('.title-actions')) return; pid=e.pointerId; bar.setPointerCapture(pid); sx=e.clientX; sy=e.clientY; const r=win.getBoundingClientRect(); ox=r.left; oy=r.top; document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); }); })();
+                // resizer (allow settings window to be resized)
+                (function(){ const resizer = win.querySelector('.resizer'); if(!resizer) return; let rid=null, sx=0, sy=0, sw=0, sh=0; function mv(e){ if(e.pointerId!==rid) return; win.style.width = Math.max(300, sw + e.clientX - sx) + 'px'; win.style.height = Math.max(200, sh + e.clientY - sy) + 'px'; } function up(e){ if(e.pointerId!==rid) return; try{ resizer.releasePointerCapture(rid);}catch(err){} rid=null; document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); } resizer.addEventListener('pointerdown', (e)=>{ rid=e.pointerId; resizer.setPointerCapture(rid); sx=e.clientX; sy=e.clientY; const r=win.getBoundingClientRect(); sw=r.width; sh=r.height; document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); }); })();
                 // wire save button
                 const saveBtn = win.querySelector('#save-settings');
                 const fontSelect = win.querySelector('#font-select');

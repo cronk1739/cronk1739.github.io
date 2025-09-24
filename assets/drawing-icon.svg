@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Notepad -->
+  <rect x="6" y="8" width="40" height="48" rx="3" fill="#fff" stroke="#d1c7ff" stroke-width="2"/>
+  <rect x="6" y="8" width="40" height="6" rx="2" fill="#a78bfa" opacity="0.08"/>
+  <line x1="14" y1="18" x2="42" y2="18" stroke="#f3f3f3" stroke-width="1.4" opacity="0.7"/>
+  <line x1="14" y1="24" x2="42" y2="24" stroke="#f3f3f3" stroke-width="1.2" opacity="0.6"/>
+  <line x1="14" y1="30" x2="42" y2="30" stroke="#f3f3f3" stroke-width="1.2" opacity="0.6"/>
+
+  <!-- Pencil (clearly visible) -->
+  <g transform="translate(46,18) rotate(35)">
+    <!-- pencil body -->
+    <rect x="-2" y="0" width="30" height="8" rx="2" fill="#f2c94c" stroke="#d69f1a" stroke-width="0.7"/>
+    <!-- ferrule (metal) -->
+    <rect x="22" y="-1" width="6" height="10" rx="1" fill="#c7c7c7" stroke="#9a9a9a" stroke-width="0.6"/>
+    <!-- eraser -->
+    <rect x="28" y="0.5" width="6" height="7" rx="1" fill="#ff8ba7" stroke="#c05d6d" stroke-width="0.6"/>
+  <!-- tip (centered and symmetric) -->
+  <path d="M-2 4 L-10 4 L-2 10 Z" fill="#6b4b2a" stroke="#3f2a18" stroke-width="0.6"/>
+  <path d="M-2 4 L-6 5 L-2 8 Z" fill="#f7e0c9" opacity="0.95"/>
+  </g>
+
+  <!-- small shadow to lift icon visually -->
+  <ellipse cx="36" cy="56" rx="16" ry="3" fill="rgba(0,0,0,0.06)"/>
+</svg>

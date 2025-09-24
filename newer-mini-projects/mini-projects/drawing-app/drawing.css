@@ -1,0 +1,31 @@
+/* Simple Microsoft-Paint-like UI */
+:root{ --bg: #f3f3f3; --toolbar: #fff; --accent: #2563eb }
+*{box-sizing:border-box}
+#toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:var(--toolbar);border-bottom:1px solid #ddd;align-items:center}
+#toolbar .group{display:flex;gap:8px;align-items:center}
+#toolbar label{font-size:13px;color:#222}
+#toolbar input[type="range"]{vertical-align:middle}
+#toolbar button{padding:6px 10px;border-radius:6px;border:1px solid #ccc;background:#fff;cursor:pointer}
+#toolbar button:hover{background:#f0f0f0}
+#toolbar .hint{color:#666;font-size:13px;margin-left:auto}
+html,body{height:100%;margin:0;font-family:system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+/* Make the page a column flex layout so toolbars take natural height and canvas-wrap fills the rest */
+body{display:flex;flex-direction:column;min-height:100vh}
+#toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:var(--toolbar);border-bottom:1px solid #ddd;align-items:center}
+#toolbar .group{display:flex;gap:8px;align-items:center}
+#canvas-wrap{flex:1 1 auto;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#eee,#ddd);overflow:auto;padding:10px}
+#paint{background:#fff;border:1px solid #bbb;box-shadow: 0 6px 18px rgba(0,0,0,0.08);touch-action:none;max-width:calc(100% - 20px);max-height:calc(100% - 20px);width:auto;height:auto}
+
+/* secondary toolbar */
+#secondary-toolbar{box-shadow:0 1px 0 rgba(0,0,0,0.03)}
+#secondary-toolbar .preset{width:22px;height:22px;border-radius:4px;border:1px solid rgba(0,0,0,0.12);cursor:pointer}
+#secondary-toolbar .preset:hover{transform:translateY(-1px)}
+
+/* grid overlay hint (canvas background) */
+.grid-bg{background-image:linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size:20px 20px;}
+
+/* smoothing toggle visual */
+.smoothing-on{filter:blur(0.1px)}
+
+/* make inputs small on narrow screens */
+@media (max-width:640px){ #toolbar{font-size:13px; padding:8px} #toolbar .hint{display:none} }

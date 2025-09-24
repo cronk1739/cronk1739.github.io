@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Drawing</title>
+  <link rel="stylesheet" href="drawing.css">
+</head>
+<body>
+  <div id="toolbar">
+    <div class="group">
+      <label>Tool
+        <select id="tool">
+          <option value="pen">Pen</option>
+          <option value="line">Line</option>
+          <option value="rect">Rectangle</option>
+          <option value="circle">Circle</option>
+          <option value="eraser">Eraser</option>
+          <option value="fill">Fill</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="group">
+      <label>Color <input type="color" id="color" value="#111111"></label>
+      <label>Brush <input id="size" type="range" min="1" max="80" value="6"></label>
+    </div>
+
+    <div class="group">
+      <button id="undo">Undo</button>
+      <button id="redo">Redo</button>
+      <button id="clear">Clear</button>
+      <button id="save">Save PNG</button>
+    </div>
+
+    <div class="group">
+      <label>Canvas: <input id="canvas-width" type="number" min="100" value="1000"> × <input id="canvas-height" type="number" min="100" value="700"></label>
+      <button id="resize">Resize</button>
+    </div>
+
+    <div class="group hint">Tip: Use mouse/touch to draw. Press Esc to cancel shape while drawing.</div>
+  </div>
+
+  <div id="secondary-toolbar" style="padding:6px 10px;background:#fff;border-bottom:1px solid #eee;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:6px">Fill shapes <input type="checkbox" id="fill-shapes"/></label>
+    <label style="display:flex;align-items:center;gap:6px">Smoothing <input type="checkbox" id="smoothing"/></label>
+    <button id="toggle-grid">Toggle Grid</button>
+    <div id="presets" style="display:flex;gap:6px;align-items:center">
+      <button class="preset" data-color="#000000" style="background:#000"></button>
+      <button class="preset" data-color="#ff0000" style="background:#ff0000"></button>
+      <button class="preset" data-color="#00aaff" style="background:#00aaff"></button>
+      <button class="preset" data-color="#00cc66" style="background:#00cc66"></button>
+      <button class="preset" data-color="#ffaa00" style="background:#ffaa00"></button>
+      <button class="preset" data-color="#ffffff" style="background:#fff;border:1px solid #ccc"></button>
+    </div>
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="paint"></canvas>
+  </div>
+
+  <script src="drawing.js"></script>
+</body>
+</html>
