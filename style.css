@@ -1,7 +1,11 @@
 /* General reset */
+:root{
+  --desktop-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: var(--desktop-font);
   background: radial-gradient(ellipse, #ff4d94, #d62d6e, #822659, #2b2b2b);
   background-attachment: fixed;
   color: #f2f2f2;
@@ -348,6 +352,7 @@ body > #desktop { position: relative; }
   left: 50%;
   top: 50%;
   transform: none;
+  font-family: var(--desktop-font);
 }
 .window .titlebar{
   background: linear-gradient(#f3f3f3,#e6e6e6);
@@ -410,6 +415,8 @@ body > #desktop { position: relative; }
 .settings-form label { display:flex; justify-content:space-between; gap:10px; align-items:center; }
 .settings-form input[type="text"], .settings-form select { flex:1; padding:6px; border-radius:4px; border:1px solid #ccc; }
 .settings-form button { padding:8px 10px; border-radius:6px; border: none; background:#2563eb; color:#fff; cursor:pointer; }
+/* preview box inside settings */
+.settings-preview { margin-top:6px; padding:10px; border-radius:6px; background: #fafafa; color:#111; border:1px solid #ddd; font-size:14px; }
 
 
 

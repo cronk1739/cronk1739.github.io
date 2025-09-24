@@ -20,10 +20,7 @@
                     <span class="glyph folder red"></span>
                     <span>Images</span>
                 </div>
-                <div class="icon" data-href="secret.html" data-color="#f59e0b" tabindex="0">
-                    <span class="glyph folder yellow"></span>
-                    <span>Secret</span>
-                </div>
+                <!-- Secret icon removed per request -->
             </div>
 
             <div id="taskbar">
@@ -160,9 +157,28 @@
 
             // special handling for settings icon (open internal settings UI)
             const settingsIcon = document.querySelector('.icon[data-href="settings"]');
+
+            // helper to inject Google Font stylesheet link into the page (idempotent)
+            function injectGoogleFont(family){
+                if(!family) return;
+                const fam = encodeURIComponent(family.trim().replace(/\s+/g,' '));
+                const href = `https://fonts.googleapis.com/css2?family=${fam}:wght@400;700&display=swap`;
+                const prev = document.querySelector('link[data-google-font]'); if(prev) prev.remove();
+                const link = document.createElement('link'); link.rel='stylesheet'; link.href = href; link.setAttribute('data-google-font', family);
+                document.head.appendChild(link);
+            }
+
             function applySettings(settings){
                 if(!settings) return;
-                if(settings.fontFamily) document.documentElement.style.setProperty('--desktop-font', settings.fontFamily);
+                if(settings.googleFont) {
+                    try{ injectGoogleFont(settings.googleFont); }catch(e){}
+                }
+                if(settings.fontFamily){
+                    // set CSS variable for themes
+                    document.documentElement.style.setProperty('--desktop-font', settings.fontFamily);
+                    // immediate fallback for older CSS engines: set body font directly
+                    try{ document.body.style.fontFamily = settings.fontFamily; }catch(e){}
+                }
                 if(settings.wallpaper){ document.getElementById('desktop').style.backgroundImage = `url('${settings.wallpaper}')`; }
             }
             function saveSettings(settings){ localStorage.setItem('desktopSettings', JSON.stringify(settings)); applySettings(settings); }
@@ -171,7 +187,7 @@
                 // build a simple in-page settings window (not iframe)
                 const existing = document.querySelector('.window[data-settings]'); if(existing){ existing.style.zIndex = ++topZ; return existing; }
                 const win = document.createElement('div'); win.className = 'window opening'; win.setAttribute('data-settings','true');
-                win.innerHTML = `<div class="titlebar"><span class="title">Settings</span><div class="title-actions"><button class="minimize">–</button><button class="close">✕</button></div></div><div class="content"><div class="settings-form"><label>Font: <select id="font-select"><option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Courier New', monospace">Monospace</option><option value="Georgia, serif">Serif</option></select></label><label>Wallpaper URL: <input id="wallpaper-input" placeholder="assets/bliss.jpg"></label><div style="margin-top:10px;"><button id="save-settings">Save</button></div></div></div><div class="resizer" aria-hidden="true"></div>`;
+                win.innerHTML = `<div class="titlebar"><span class="title">Settings</span><div class="title-actions"><button class="minimize">–</button><button class="close">✕</button></div></div><div class="content"><div class="settings-form"><label>Font: <select id="font-select"><option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Courier New', monospace">Monospace</option><option value="Georgia, serif">Serif</option><option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter</option><option value="'Poppins', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial">Poppins</option><option value="'Lato', system-ui, Roboto, 'Helvetica Neue', Arial">Lato</option><option value="'Montserrat', system-ui, Roboto, 'Helvetica Neue', Arial">Montserrat</option></select></label><label>Or Google Font (family name): <input id="google-font-input" placeholder="e.g. Roboto" /></label><div style="display:flex;gap:8px"><button id="preview-google">Preview</button><button id="load-google">Load & Save</button></div><label>Custom font stack (CSS): <input id="custom-stack-input" placeholder="e.g. 'Segoe UI', system-ui, sans-serif" /></label><div id="settings-preview" class="settings-preview">The quick brown fox jumps over the lazy dog — Preview text</div><label>Wallpaper URL: <input id="wallpaper-input" placeholder="assets/bliss.jpg"></label><div style="margin-top:10px; display:flex; gap:8px"><button id="save-settings">Save</button><button id="reset-settings">Reset to Default</button></div></div></div><div class="resizer" aria-hidden="true"></div>`;
                 document.getElementById('windows').appendChild(win);
                 win.style.zIndex = ++topZ;
                 // position
@@ -187,8 +203,84 @@
                 const saveBtn = win.querySelector('#save-settings');
                 const fontSelect = win.querySelector('#font-select');
                 const wallpaperInput = win.querySelector('#wallpaper-input');
-                const cur = loadSettings(); if(cur.fontFamily) fontSelect.value = cur.fontFamily; if(cur.wallpaper) wallpaperInput.value = cur.wallpaper;
-                saveBtn.addEventListener('click', ()=>{ const settings = { fontFamily: fontSelect.value, wallpaper: wallpaperInput.value || 'assets/bliss.jpg' }; saveSettings(settings); alert('Settings saved'); });
+                const googleInput = win.querySelector('#google-font-input');
+                const previewBtn = win.querySelector('#preview-google');
+                const loadGoogleBtn = win.querySelector('#load-google');
+                const customStackInput = win.querySelector('#custom-stack-input');
+                const previewArea = win.querySelector('#settings-preview');
+                const resetBtn = win.querySelector('#reset-settings');
+                const cur = loadSettings();
+                if(cur.fontFamily) {
+                    fontSelect.value = cur.fontFamily;
+                } else {
+                    // try to prefill from the active CSS variable (if set)
+                    const comp = getComputedStyle(document.documentElement).getPropertyValue('--desktop-font').trim();
+                    if(comp){
+                        const match = Array.from(fontSelect.options).find(o=>o.value.trim()===comp);
+                        if(match) fontSelect.value = match.value;
+                    }
+                }
+                if(cur.wallpaper) wallpaperInput.value = cur.wallpaper;
+                if(cur.googleFont) googleInput.value = cur.googleFont;
+                if(cur.customStack) customStackInput.value = cur.customStack;
+
+                // helper to inject google font link
+                function injectGoogleFont(family){
+                    if(!family) return;
+                    // normalize family (e.g., 'Roboto' -> 'Roboto:400,700') ; keep simple and request regular weight
+                    const fam = encodeURIComponent(family.trim().replace(/\s+/g,' '));
+                    const href = `https://fonts.googleapis.com/css2?family=${fam}:wght@400;700&display=swap`;
+                    // remove any previous injected link with data-google-font
+                    const prev = document.querySelector('link[data-google-font]'); if(prev) prev.remove();
+                    const link = document.createElement('link'); link.rel='stylesheet'; link.href = href; link.setAttribute('data-google-font', family);
+                    document.head.appendChild(link);
+                }
+
+                previewBtn.addEventListener('click', ()=>{
+                    const fam = googleInput.value.trim(); if(!fam) return alert('Enter a Google Font family name to preview, e.g. Roboto');
+                    injectGoogleFont(fam);
+                    // apply to page immediately using the family name + fallback
+                    const cssVal = `'${fam}', ${fontSelect.value}`;
+                    document.documentElement.style.setProperty('--desktop-font', cssVal);
+                    try{ document.body.style.fontFamily = cssVal; }catch(e){}
+                    previewArea.style.fontFamily = cssVal;
+                });
+
+                loadGoogleBtn.addEventListener('click', ()=>{
+                    const fam = googleInput.value.trim(); if(!fam) return alert('Enter a Google Font family name to load');
+                    injectGoogleFont(fam);
+                    const cssVal = `'${fam}', ${fontSelect.value}`;
+                    const settings = { fontFamily: cssVal, wallpaper: wallpaperInput.value || 'assets/bliss.jpg', googleFont: fam, customStack: customStackInput.value || undefined };
+                    saveSettings(settings);
+                    previewArea.style.fontFamily = cssVal;
+                    alert('Google Font loaded and settings saved');
+                });
+
+                // preview custom stack live
+                customStackInput.addEventListener('input', ()=>{
+                    const val = customStackInput.value.trim();
+                    if(val){
+                        previewArea.style.fontFamily = val;
+                    } else {
+                        previewArea.style.fontFamily = getComputedStyle(document.documentElement).getPropertyValue('--desktop-font');
+                    }
+                });
+
+                // Reset to defaults
+                resetBtn.addEventListener('click', ()=>{
+                    if(!confirm('Reset settings to defaults?')) return;
+                    localStorage.removeItem('desktopSettings');
+                    // remove injected google font
+                    const prev = document.querySelector('link[data-google-font]'); if(prev) prev.remove();
+                    // reset CSS var and body style
+                    document.documentElement.style.removeProperty('--desktop-font');
+                    document.body.style.fontFamily = '';
+                    // reset wallpaper
+                    document.getElementById('desktop').style.backgroundImage = "url('assets/bliss.jpg')";
+                    alert('Settings reset. Reloading page to apply defaults.');
+                    location.reload();
+                });
+                saveBtn.addEventListener('click', ()=>{ const settings = { fontFamily: customStackInput.value.trim() || fontSelect.value, wallpaper: wallpaperInput.value || 'assets/bliss.jpg', googleFont: googleInput.value || undefined, customStack: customStackInput.value.trim() || undefined }; saveSettings(settings); applySettings(settings); previewArea.style.fontFamily = settings.fontFamily; alert('Settings saved'); });
                 setTimeout(()=> win.classList.remove('opening'), 260);
                 return win;
             }
