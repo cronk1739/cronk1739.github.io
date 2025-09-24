@@ -124,27 +124,41 @@ ul.notes li::before {
   font-weight: bold;
 }
 
-.portfolio-list a:hover {
-  color: #ffd6eb;
-}
-/* bullet points */
-.music-list {
-  list-style: none; /* remove default bullets */
-  padding-left: 1.2em; /* space for custom bullet */
-}
-
-.music-list li {
+/* small folder glyph for lists */
+.list-glyph {
+  display: inline-block;
+  width: 18px; height: 14px; margin-right: 8px; vertical-align: middle;
   position: relative;
-  margin-bottom: 0.5em;
 }
+.list-glyph::before{ content: ''; position: absolute; left: 0; right: 0; top: 4px; height: 10px; border-radius: 2px; }
+.list-glyph::after{ content: ''; position: absolute; left: 2px; top: 0; width: 10px; height: 6px; border-radius: 2px 2px 0 0; }
+.list-glyph.blue::before{ background: #3b82f6; }
+.list-glyph.blue::after{ background: #2563eb; }
+.list-glyph.green::before{ background: #34d399; }
+.list-glyph.green::after{ background: #10b981; }
+.list-glyph.red::before{ background: #f87171; }
+.list-glyph.red::after{ background: #ef4444; }
+.list-glyph.yellow::before{ background: #fbbf24; }
+.list-glyph.yellow::after{ background: #f59e0b; }
 
-.music-list li::before {
-  content: "\266B"; /* Unicode for music note ♪ is \266B */
-  position: absolute;
-  left: -1.2em;
-  color: #000; /* bullet color */
-  font-size: 1.2em; /* adjust size */
+/* small folder glyph for lists */
+.list-glyph {
+  display: inline-block;
+  width: 18px; height: 14px; margin-right: 8px; vertical-align: middle;
+  position: relative;
 }
+.list-glyph::before{ content: ''; position: absolute; left: 0; right: 0; top: 4px; height: 10px; border-radius: 2px; }
+.list-glyph::after{ content: ''; position: absolute; left: 2px; top: 0; width: 10px; height: 6px; border-radius: 2px 2px 0 0; }
+.list-glyph.blue::before{ background: #3b82f6; }
+.list-glyph.blue::after{ background: #2563eb; }
+.list-glyph.green::before{ background: #34d399; }
+.list-glyph.green::after{ background: #10b981; }
+.list-glyph.red::before{ background: #f87171; }
+.list-glyph.red::after{ background: #ef4444; }
+.list-glyph.yellow::before{ background: #fbbf24; }
+.list-glyph.yellow::after{ background: #f59e0b; }
+
+/* Profile card styles */
 .profile-card {
   position: relative;
    padding: 20px;
@@ -163,6 +177,239 @@ ul.notes li::before {
   border-radius: 10px;
   border: 3px solid #ff4d94;
 }
+
+/* ---------- Desktop / Start Menu Styles ---------- */
+html, body, #desktop {
+  height: 100%;
+}
+
+#desktop {
+  background-color: #0b2740; /* fallback color */
+  background-image: url('assets/bliss.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+/* ensure desktop is behind floating windows and taskbar */
+#desktop { z-index: 0; }
+
+/* prevent body background from covering desktop in some browsers */
+body > #desktop { position: relative; }
+
+#icons {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 96px);
+  gap: 18px 24px;
+  align-items: start;
+}
+
+.icon {
+  width: 96px;
+  text-align: center;
+  color: #fff;
+  cursor: default;
+  user-select: none;
+  outline: none;
+}
+
+.icon img {
+  width: 64px;
+  height: 64px;
+  display: block;
+  margin: 0 auto 6px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.icon span {
+  display: block;
+  font-size: 12px;
+  color: #eaeaea;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.6);
+}
+
+/* Folder glyph (simple CSS folder icon) */
+.glyph {
+  display: block;
+  width: 64px;
+  height: 48px;
+  margin: 0 auto 6px auto;
+  position: relative;
+  border-radius: 4px;
+}
+.glyph::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 38px;
+  border-radius: 4px;
+}
+.glyph::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 0;
+  width: 34px;
+  height: 18px;
+  border-radius: 3px 3px 0 0;
+}
+.glyph.folder.blue::before { background: #3b82f6; }
+.glyph.folder.blue::after { background: #2563eb; }
+.glyph.folder.green::before { background: #34d399; }
+.glyph.folder.green::after { background: #10b981; }
+.glyph.folder.red::before { background: #f87171; }
+.glyph.folder.red::after { background: #ef4444; }
+.glyph.folder.yellow::before { background: #fbbf24; }
+.glyph.folder.yellow::after { background: #f59e0b; }
+
+.icon.selected {
+  background: rgba(0,120,215,0.25);
+  border-radius: 6px;
+  padding: 6px 4px;
+}
+
+#taskbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  background: linear-gradient(#0b2b4a, #062133);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.6);
+}
+
+#start-button {
+  background: linear-gradient(#e9e9e9, #d6d6d6);
+  border: 1px solid #999;
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-right: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#taskbar-icons {
+  flex: 1;
+}
+
+#tray { display: flex; align-items: center; gap: 12px; }
+
+#clock {
+  color: #fff;
+  font-weight: 600;
+}
+
+#start-menu {
+  position: absolute;
+  left: 8px;
+  bottom: 48px;
+  width: 220px;
+  background: rgba(250,250,250,0.98);
+  color: #111;
+  border: 1px solid #cfcfcf;
+  border-radius: 4px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  padding: 10px;
+}
+
+.start-header { font-weight: bold; margin-bottom: 8px; }
+
+#start-menu ul { padding: 0; margin: 0; list-style: none; }
+#start-menu li { padding: 6px 8px; border-radius: 4px; }
+#start-menu li a { color: inherit; text-decoration: none; display: block; }
+#start-menu li:hover { background: rgba(0,0,0,0.05); }
+
+@media (max-width: 480px){
+  #icons { grid-template-columns: repeat(1, 96px); left: 10px; top: 10px; }
+}
+
+/* Floating window styles for portfolio page */
+.window {
+  width: 640px;
+  height: 420px;
+  background: #fff;
+  color: #111;
+  border: 1px solid #999;
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  overflow: hidden;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: none;
+}
+.window .titlebar{
+  background: linear-gradient(#f3f3f3,#e6e6e6);
+  padding: 4px 8px;
+  display:flex; align-items:center; justify-content:space-between;
+  cursor: grab;
+  height: 34px;
+}
+.window .title{ font-weight:700; }
+.window .close{
+  background: transparent; border: none; font-size: 14px; cursor:pointer;
+}
+.window .title-actions { display:flex; gap:6px; align-items:center; }
+.window .title-actions button { background: transparent; border: none; cursor: pointer; font-size: 14px; }
+.window .content{ padding: 6px; height: calc(100% - 34px); box-sizing: border-box; display:flex; flex-direction:column; }
+.window .content p{ margin:0 0 6px 0; font-size:13px; }
+.window .iframe-wrap{ flex:1; margin-top:6px; }
+.window iframe{ width: 100%; height: 100%; border: none; display:block; }
+
+/* Resize handle */
+.resizer{
+  width: 18px; height: 18px; position: absolute; right: 6px; bottom: 6px; cursor: nwse-resize;
+  background: linear-gradient(135deg, rgba(0,0,0,0.06), rgba(0,0,0,0.12)); border-radius: 3px;
+}
+.window{ min-width: 300px; min-height: 200px; }
+
+/* Taskbar buttons for open windows */
+#taskbar .task-btn { margin-right: 6px; padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: #fff; cursor: pointer; }
+#taskbar .task-btn.minimized { opacity: 0.6; }
+
+.title-actions button { padding: 2px 6px; border-radius: 3px; }
+.title-actions button:hover { background: rgba(0,0,0,0.06); }
+
+/* Fullscreen button */
+.title-actions .fullscreen{ font-size: 13px; }
+.title-actions .fullscreen[aria-pressed="true"]{ background: rgba(0,0,0,0.08); }
+
+/* small glyph for taskbar button */
+.task-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 28px; padding: 2px; }
+.task-btn .task-icon { width: 18px; height: 14px; background: linear-gradient(180deg,#6b7280,#374151); border-radius: 3px; display: inline-block; }
+
+/* Fullscreen state for windows */
+.window.fullscreen {
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+/* window open animation */
+.window.opening { transform: scale(0.96); opacity: 0; transition: transform 220ms ease, opacity 220ms ease; }
+.window { transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease; }
+
+/* Settings form inside a window */
+.settings-form { display:flex; flex-direction:column; gap:8px; font-size:14px; }
+.settings-form label { display:flex; justify-content:space-between; gap:10px; align-items:center; }
+.settings-form input[type="text"], .settings-form select { flex:1; padding:6px; border-radius:4px; border:1px solid #ccc; }
+.settings-form button { padding:8px 10px; border-radius:6px; border: none; background:#2563eb; color:#fff; cursor:pointer; }
 
 
 

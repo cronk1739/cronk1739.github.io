@@ -6,34 +6,208 @@
     </head>
 
     <body>
-        <!-- All content goes here -->
-         <div id="all-contents">
-            <header class="section">
-              <h1>My First Website</h1>
-                <nav>
-                    <a href="index.html">Home</a>
-                    <a href="portfolio.html">Portfolio</a>
-                    <a href="images.html">Images</a>
-                </nav>
-            </header>
-            <main>
-                <div class="section profile-card">
-                    <div class="profile-text">
-                    <h2>Sebastian Carter</h2>
-                    <p>Student at Covington High School</p>
-
-                    <h3>Interests</h3>
-                    <ul class="notes">
-                        <li>Coding</li>
-                        <li>Gaming</li>
-                        <li>Listening to music</li>
-                        <li>My Girlfriend</li>
-                    </ul>
-                    </div>
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1ZB9-mGvNloZpo5zu340h2HTOPjA7_J1cQ1pvNWoQLLiIY2c:https://pa1.aminoapps.com/6840/8bdfe1ed7e65d05b2c467b2b5fd8af8562bc5ea5_hq.gif&s" alt="Teto dancing" class="profile-image">
+        <div id="desktop">
+            <div id="icons">
+                <div class="icon" data-href="settings" data-color="#3b82f6" tabindex="0">
+                    <span class="glyph folder blue"></span>
+                    <span>Settings</span>
                 </div>
+                <div class="icon" data-href="portfolio.html" data-color="#10b981" tabindex="0">
+                    <span class="glyph folder green"></span>
+                    <span>Portfolio</span>
+                </div>
+                <div class="icon" data-href="images.html" data-color="#ef4444" tabindex="0">
+                    <span class="glyph folder red"></span>
+                    <span>Images</span>
+                </div>
+                <div class="icon" data-href="secret.html" data-color="#f59e0b" tabindex="0">
+                    <span class="glyph folder yellow"></span>
+                    <span>Secret</span>
+                </div>
+            </div>
 
-            </main>
-         </div>
+            <div id="taskbar">
+                <button id="start-button">Start</button>
+                <div id="taskbar-icons"></div>
+                <div id="tray">
+                    <div id="clock"></div>
+                </div>
+            </div>
+
+            <div id="windows"></div>
+
+            <div id="start-menu" hidden>
+                <div class="start-header">Start Menu</div>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#" id="start-settings">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <script>
+        // Desktop icon interactions
+            (function(){
+            const icons = document.querySelectorAll('.icon');
+            const windows = document.getElementById('windows');
+            const taskbarIcons = document.getElementById('taskbar-icons');
+            let topZ = 1000;
+
+            function createWindow(title, href, color = '#6b7280'){
+                const win = document.createElement('div');
+                win.className = 'window opening';
+                win.innerHTML = `<div class="titlebar"><span class="title">${title}</span><div class="title-actions"><button class="minimize">–</button><button class="fullscreen" aria-pressed="false">▢</button><button class="close">✕</button></div></div><div class="content"><div class="iframe-wrap"><iframe src="${href}" frameborder="0"></iframe></div></div><div class="resizer" aria-hidden="true"></div>`;
+                windows.appendChild(win);
+                win.style.zIndex = ++topZ;
+
+                // taskbar button
+                const taskBtn = document.createElement('button');
+                taskBtn.className = 'task-btn';
+                taskBtn.innerHTML = `<span class="task-icon" style="background:${color}; box-shadow: inset 0 -2px rgba(0,0,0,0.12);"></span>`;
+                taskBtn.title = title;
+                taskbarIcons.appendChild(taskBtn);
+
+                const close = win.querySelector('.close');
+                close.addEventListener('click', ()=>{ try{ win.remove(); }catch(e){} try{ taskBtn.remove(); }catch(e){} });
+
+                // cleanup embedded page UI when iframe loads
+                const iframe = win.querySelector('iframe');
+                iframe.addEventListener('load', ()=>{
+                    try{
+                        const idoc = iframe.contentDocument || iframe.contentWindow.document;
+                        // hide common desktop elements inside embedded pages
+                        const selectors = ['header.section','nav','#taskbar','#start-menu','#icons','footer','.section .nav'];
+                        selectors.forEach(sel=>{
+                            const el = idoc.querySelector(sel);
+                            if(el) el.style.display = 'none';
+                        });
+                        // remove body margins to reduce whitespace
+                        if(idoc.body) idoc.body.style.margin = '0';
+                        // also try to reduce padding on first .section if present
+                        const firstSection = idoc.querySelector('.section');
+                        if(firstSection) { firstSection.style.paddingTop = '6px'; firstSection.style.paddingBottom = '6px'; }
+                    }catch(e){}
+                });
+
+                // center window
+                const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+                const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+                const initW = 640, initH = 420;
+                win.style.position='absolute'; win.style.width = initW + 'px'; win.style.height = initH + 'px'; win.style.left = Math.max(10, Math.floor((vw - initW)/2)) + 'px'; win.style.top = Math.max(10, Math.floor((vh - initH)/2)) + 'px';
+
+                // bring to front on pointerdown
+                win.addEventListener('pointerdown', ()=> win.style.zIndex = ++topZ);
+
+                // draggable
+                (function(){
+                    const bar = win.querySelector('.titlebar');
+                    let pid=null, sx=0, sy=0, ox=0, oy=0;
+                    function mv(e){ if(e.pointerId!==pid) return; win.style.left = (ox + e.clientX - sx) + 'px'; win.style.top = (oy + e.clientY - sy) + 'px'; }
+                    function up(e){ if(e.pointerId!==pid) return; try{ bar.releasePointerCapture(pid);}catch(err){} pid=null; document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); }
+                    bar.addEventListener('pointerdown', (e)=>{
+                        // don't start drag when clicking controls
+                        if(e.target.closest('button') || e.target.closest('.title-actions')) return;
+                        pid=e.pointerId; bar.setPointerCapture(pid); sx=e.clientX; sy=e.clientY; const r=win.getBoundingClientRect(); ox=r.left; oy=r.top; document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up);
+                    });
+                    // double-click titlebar to toggle fullscreen
+                    bar.addEventListener('dblclick', ()=>{ const fs = win.querySelector('.fullscreen'); if(fs) fs.click(); });
+                })();
+
+                // resizer
+                (function(){ const resizer = win.querySelector('.resizer'); let rid=null, sx=0, sy=0, sw=0, sh=0; function mv(e){ if(e.pointerId!==rid) return; win.style.width = Math.max(300, sw + e.clientX - sx) + 'px'; win.style.height = Math.max(200, sh + e.clientY - sy) + 'px'; } function up(e){ if(e.pointerId!==rid) return; try{ resizer.releasePointerCapture(rid);}catch(err){} rid=null; document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); } resizer.addEventListener('pointerdown', (e)=>{ rid=e.pointerId; resizer.setPointerCapture(rid); sx=e.clientX; sy=e.clientY; const r=win.getBoundingClientRect(); sw=r.width; sh=r.height; document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); }); })();
+
+                                // minimize
+                                const minBtn = win.querySelector('.minimize'); minBtn.addEventListener('click', ()=>{ win.style.display='none'; taskBtn.classList.add('minimized'); });
+                                // fullscreen
+                                const fsBtn = win.querySelector('.fullscreen');
+                                let maximized = false; let prevRect = null;
+                                function toggleFullscreen(){
+                                    if(!maximized){
+                                        const rect = win.getBoundingClientRect();
+                                        prevRect = {left: rect.left, top: rect.top, width: rect.width, height: rect.height};
+                                        // make truly fullscreen within viewport
+                                        win.classList.add('fullscreen');
+                                        maximized = true; fsBtn.setAttribute('aria-pressed','true');
+                                    } else {
+                                        if(prevRect){ win.style.position='absolute'; win.style.left=prevRect.left+'px'; win.style.top=prevRect.top+'px'; win.style.width=prevRect.width+'px'; win.style.height=prevRect.height+'px'; }
+                                        win.classList.remove('fullscreen');
+                                        maximized=false; fsBtn.setAttribute('aria-pressed','false');
+                                    }
+                                    win.style.zIndex = ++topZ;
+                                }
+                                fsBtn.addEventListener('click', toggleFullscreen);
+                taskBtn.addEventListener('click', ()=>{
+                    // if minimized, restore and focus
+                    if(win.style.display==='none' || win.classList.contains('minimized')){
+                        win.style.display='block'; taskBtn.classList.remove('minimized'); win.style.zIndex = ++topZ; win.classList.remove('minimized');
+                    } else {
+                        // if visible, minimize it
+                        win.style.display='none'; taskBtn.classList.add('minimized'); win.classList.add('minimized');
+                    }
+                });
+
+                setTimeout(()=> win.classList.remove('opening'), 260);
+                return win;
+            }
+
+            icons.forEach(icon=>{
+                let clickCount = 0; let clickTimer = null;
+                icon.addEventListener('click', (e)=>{
+                    clickCount++; if(clickCount===1){ icon.classList.toggle('selected'); clickTimer = setTimeout(()=>{ clickCount=0; }, 300); } else if(clickCount===2){ clearTimeout(clickTimer); clickCount=0; const href = icon.dataset.href; if(href) createWindow(icon.textContent.trim(), href); }
+                });
+                icon.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const href = icon.dataset.href; if(href) createWindow(icon.textContent.trim(), href); } });
+            });
+
+            // special handling for settings icon (open internal settings UI)
+            const settingsIcon = document.querySelector('.icon[data-href="settings"]');
+            function applySettings(settings){
+                if(!settings) return;
+                if(settings.fontFamily) document.documentElement.style.setProperty('--desktop-font', settings.fontFamily);
+                if(settings.wallpaper){ document.getElementById('desktop').style.backgroundImage = `url('${settings.wallpaper}')`; }
+            }
+            function saveSettings(settings){ localStorage.setItem('desktopSettings', JSON.stringify(settings)); applySettings(settings); }
+            function loadSettings(){ try{ return JSON.parse(localStorage.getItem('desktopSettings')||'{}'); }catch(e){ return {}; } }
+            function createSettingsWindow(){
+                // build a simple in-page settings window (not iframe)
+                const existing = document.querySelector('.window[data-settings]'); if(existing){ existing.style.zIndex = ++topZ; return existing; }
+                const win = document.createElement('div'); win.className = 'window opening'; win.setAttribute('data-settings','true');
+                win.innerHTML = `<div class="titlebar"><span class="title">Settings</span><div class="title-actions"><button class="minimize">–</button><button class="close">✕</button></div></div><div class="content"><div class="settings-form"><label>Font: <select id="font-select"><option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Courier New', monospace">Monospace</option><option value="Georgia, serif">Serif</option></select></label><label>Wallpaper URL: <input id="wallpaper-input" placeholder="assets/bliss.jpg"></label><div style="margin-top:10px;"><button id="save-settings">Save</button></div></div></div><div class="resizer" aria-hidden="true"></div>`;
+                document.getElementById('windows').appendChild(win);
+                win.style.zIndex = ++topZ;
+                // position
+                const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+                const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+                const w = 420, h = 260; win.style.position='absolute'; win.style.width = w+'px'; win.style.height = h+'px'; win.style.left = Math.max(10, Math.floor((vw - w)/2)) + 'px'; win.style.top = Math.max(10, Math.floor((vh - h)/2)) + 'px';
+                // wire close/minimize
+                win.querySelector('.close').addEventListener('click', ()=> win.remove());
+                win.querySelector('.minimize').addEventListener('click', ()=> win.style.display='none');
+                // basic drag
+                (function(){ const bar = win.querySelector('.titlebar'); let pid=null, sx=0, sy=0, ox=0, oy=0; function mv(e){ if(e.pointerId!==pid) return; win.style.left = (ox + e.clientX - sx) + 'px'; win.style.top = (oy + e.clientY - sy) + 'px'; } function up(e){ if(e.pointerId!==pid) return; try{ bar.releasePointerCapture(pid);}catch(err){} pid=null; document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); } bar.addEventListener('pointerdown', (e)=>{ if(e.target.closest('button') || e.target.closest('.title-actions')) return; pid=e.pointerId; bar.setPointerCapture(pid); sx=e.clientX; sy=e.clientY; const r=win.getBoundingClientRect(); ox=r.left; oy=r.top; document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); }); })();
+                // wire save button
+                const saveBtn = win.querySelector('#save-settings');
+                const fontSelect = win.querySelector('#font-select');
+                const wallpaperInput = win.querySelector('#wallpaper-input');
+                const cur = loadSettings(); if(cur.fontFamily) fontSelect.value = cur.fontFamily; if(cur.wallpaper) wallpaperInput.value = cur.wallpaper;
+                saveBtn.addEventListener('click', ()=>{ const settings = { fontFamily: fontSelect.value, wallpaper: wallpaperInput.value || 'assets/bliss.jpg' }; saveSettings(settings); alert('Settings saved'); });
+                setTimeout(()=> win.classList.remove('opening'), 260);
+                return win;
+            }
+            if(settingsIcon){ settingsIcon.addEventListener('dblclick', ()=> createSettingsWindow()); settingsIcon.addEventListener('keydown', (e)=>{ if(e.key==='Enter') createSettingsWindow(); }); }
+            // apply settings on load
+            applySettings(loadSettings());
+
+            // Start menu toggle and images open handler
+            const start = document.getElementById('start-button');
+            const startMenu = document.getElementById('start-menu');
+            start.addEventListener('click', ()=>{ startMenu.hidden = !startMenu.hidden; });
+            const startSettings = document.getElementById('start-settings');
+            if(startSettings) startSettings.addEventListener('click', (e)=>{ e.preventDefault(); createSettingsWindow(); startMenu.hidden=true; });
+
+            // Clock
+            const clock = document.getElementById('clock');
+            function updateClock(){ const now = new Date(); clock.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}); }
+            updateClock(); setInterval(updateClock, 1000);
+        })();
+        </script>
     </body>
 </html>
