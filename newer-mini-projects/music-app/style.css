@@ -1,0 +1,23 @@
+:root{ --bg:#0f172a; --panel:#0b1220; --muted:#9ca3af; --accent:#7c3aed }
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+body{background:linear-gradient(180deg,#071130, #081226);color:#e6eef8;display:flex;align-items:center;justify-content:center;padding:24px}
+.app{width:100%;max-width:980px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.06));border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+.app-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.app-header h1{margin:0;font-size:18px}
+.controls-top input[type=file]{display:inline-block}
+main{display:flex;gap:12px;padding:16px}
+.player{flex:2;min-width:300px}
+.playlist{width:260px;background:rgba(255,255,255,0.02);padding:8px;border-left:1px solid rgba(255,255,255,0.02)}
+#viz{width:100%;height:160px;display:block;background:linear-gradient(180deg,#021024,#04142a);border-radius:6px}
+.playback{display:flex;align-items:center;gap:12px;padding-top:12px}
+.playback .buttons button{font-size:18px;padding:8px 12px;margin:0 6px}
+#seek{width:420px}
+.playlist-header{font-weight:600;margin-bottom:8px}
+#playlist{list-style:none;margin:0;padding:0;max-height:320px;overflow:auto}
+#playlist li{padding:8px;border-radius:6px;cursor:pointer}
+#playlist li.active{background:linear-gradient(90deg, rgba(124,58,237,0.2), rgba(99,102,241,0.1))}
+.muted{color:var(--muted);font-size:13px}
+.app-footer{padding:8px 16px;border-top:1px solid rgba(255,255,255,0.02)}
+.playlist-actions{display:flex;gap:8px;margin-top:8px}
+@media(max-width:800px){main{flex-direction:column}.playlist{width:100%}}

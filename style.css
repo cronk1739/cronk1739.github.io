@@ -284,6 +284,11 @@ body > #desktop { position: relative; }
   padding: 6px 4px;
 }
 
+/* show a small house icon on the titlebar and a tiny badge on icons to indicate open-in-window */
+.title-actions .home{ font-size:13px; padding:2px 6px; border-radius:3px; }
+.icon::after{ content: '↗'; position: absolute; right: 6px; bottom: 6px; font-size:10px; opacity:0.0; transition: opacity 120ms; }
+.icon:hover::after{ opacity:0.7; }
+
 #taskbar {
   position: absolute;
   left: 0;
@@ -337,6 +342,15 @@ body > #desktop { position: relative; }
 #start-menu li { padding: 6px 8px; border-radius: 4px; }
 #start-menu li a { color: inherit; text-decoration: none; display: block; }
 #start-menu li:hover { background: rgba(0,0,0,0.05); }
+
+/* visual cue: small 'open in window' arrow at the end of Start menu items */
+#start-menu li a::after{
+  content: '↗';
+  float: right;
+  opacity: 0.55;
+  font-size: 12px;
+  transform: translateY(-1px);
+}
 
 @media (max-width: 480px){
   #icons { grid-template-columns: repeat(1, 96px); left: 10px; top: 10px; }

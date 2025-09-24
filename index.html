@@ -20,9 +20,13 @@
                     <img class="app-icon" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLvwmXlstUSTVmA0C2KWphEIlqJr1mk3ySrQ&s" alt="Images" />
                     <span>Images</span>
                 </div>
-                <div class="icon" data-href="newer-mini-projects/drawing.html" data-color="#8b5cf6" tabindex="0">
+                <div class="icon" data-href="newer-mini-projects/mini-projects/drawing-app/drawing.html" data-color="#8b5cf6" tabindex="0">
                     <img class="app-icon" src="assets/drawing-icon.svg" alt="Drawing" />
                     <span>Drawing</span>
+                </div>
+                <div class="icon" data-href="newer-mini-projects/music-app/index.html" data-color="#ef4444" tabindex="0">
+                    <img class="app-icon" src="assets/musicnote.png" alt="Music" />
+                    <span>Music</span>
                 </div>
                 <!-- Secret icon removed per request -->
             </div>
@@ -42,7 +46,8 @@
                 <ul>
                     <li><a href="index.html">Home</a></li>
                     <li><a href="#" id="start-settings">Settings</a></li>
-                    <li><a href="newer-mini-projects/drawing.html">Drawing</a></li>
+                    <li><a href="newer-mini-projects/mini-projects/drawing-app/drawing.html">Drawing</a></li>
+                    <li><a href="newer-mini-projects/music-app/index.html">Music</a></li>
                 </ul>
             </div>
         </div>
@@ -85,6 +90,7 @@
             function createWindow(title, href, color = '#6b7280'){
                 const win = document.createElement('div');
                 win.className = 'window opening';
+                // build window titlebar and controls (no Home button)
                 win.innerHTML = `<div class="titlebar"><span class="title">${title}</span><div class="title-actions"><button class="minimize">–</button><button class="fullscreen" aria-pressed="false">▢</button><button class="close">✕</button></div></div><div class="content"><div class="iframe-wrap"><iframe src="${href}" frameborder="0"></iframe></div></div><div class="resizer" aria-hidden="true"></div>`;
                 windows.appendChild(win);
                 win.style.zIndex = ++topZ;
@@ -121,7 +127,12 @@
                 // center window
                 const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
                 const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-                const initW = 640, initH = 420;
+                // default window size; some apps (music) prefer a wider layout
+                let initW = 640, initH = 420;
+                try{
+                    // if opening the music app, use a larger default size
+                    if(String(href).includes('newer-mini-projects/music-app')){ initW = 900; initH = 520; }
+                }catch(e){}
                 win.style.position='absolute'; win.style.width = initW + 'px'; win.style.height = initH + 'px'; win.style.left = Math.max(10, Math.floor((vw - initW)/2)) + 'px'; win.style.top = Math.max(10, Math.floor((vh - initH)/2)) + 'px';
 
                 // bring to front on pointerdown
@@ -368,8 +379,30 @@
             const start = document.getElementById('start-button');
             const startMenu = document.getElementById('start-menu');
             start.addEventListener('click', ()=>{ startMenu.hidden = !startMenu.hidden; });
-            const startSettings = document.getElementById('start-settings');
-            if(startSettings) startSettings.addEventListener('click', (e)=>{ e.preventDefault(); createSettingsWindow(); startMenu.hidden=true; });
+
+            // Handle clicks inside the Start menu. Prevent full-page navigation and open apps in windows instead.
+            startMenu.addEventListener('click', (e)=>{
+                const a = e.target.closest('a');
+                if(!a) return;
+                e.preventDefault();
+                const href = a.getAttribute('href');
+                // settings is a special in-page app
+                if(a.id === 'start-settings'){
+                    createSettingsWindow();
+                    startMenu.hidden = true;
+                    return;
+                }
+                // home: just close the menu (we're already on the desktop)
+                if(href === 'index.html'){
+                    startMenu.hidden = true;
+                    return;
+                }
+                // open other apps in a window (iframe)
+                if(href){
+                    createWindow(a.textContent.trim(), href);
+                    startMenu.hidden = true;
+                }
+            });
 
             // Clock
             const clock = document.getElementById('clock');

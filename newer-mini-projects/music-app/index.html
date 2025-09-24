@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Music App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>Mini Music Player</h1>
+      <div class="controls-top">
+        <input id="file-input" type="file" accept="audio/*" multiple />
+        <button id="add-sample">Add Sample</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="player">
+        <canvas id="viz" width="800" height="160"></canvas>
+        <div class="playback">
+          <div class="left">
+            <div class="meta">
+              <div id="track-title">No track loaded</div>
+              <div id="track-artist" class="muted"></div>
+            </div>
+          </div>
+          <div class="center">
+            <div class="buttons">
+              <button id="prev">⏮</button>
+              <button id="play">▶</button>
+              <button id="next">⏭</button>
+              <button id="shuffle" title="Shuffle">🔀</button>
+              <button id="repeat" title="Repeat">🔁</button>
+            </div>
+            <input id="seek" type="range" min="0" max="100" value="0">
+            <div class="time"><span id="cur-time">0:00</span> / <span id="dur">0:00</span></div>
+          </div>
+          <div class="right">
+            <label>Vol <input id="vol" type="range" min="0" max="1" step="0.01" value="1"></label>
+          </div>
+        </div>
+      </section>
+
+      <aside class="playlist">
+        <div class="playlist-header">Playlist</div>
+        <ul id="playlist"></ul>
+        <div class="playlist-actions">
+          <button id="clear">Clear</button>
+          <button id="shuffle">Shuffle</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="app-footer muted">Drag & drop audio files onto the page or use the file input. Keyboard: Space=Play/Pause, ←/→ seek.</footer>
+  </div>
+
+<script src="app.js"></script>
+</body>
+</html>
