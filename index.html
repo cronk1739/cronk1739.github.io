@@ -408,6 +408,14 @@
             const clock = document.getElementById('clock');
             function updateClock(){ const now = new Date(); clock.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}); }
             updateClock(); setInterval(updateClock, 1000);
+            // double-click the clock to open the Secret slideshow (password-protected)
+            clock.addEventListener('dblclick', ()=>{
+                const pw = prompt('Enter secret password:');
+                if(!pw) return;
+                // we delegate actual password check to the page but allow shortcut for convenience
+                // open the secret window; the page will show its own overlay if not unlocked
+                createWindow('Secret', 'secret.html', '#111827');
+            });
         })();
         </script>
     </body>
