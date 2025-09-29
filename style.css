@@ -321,7 +321,18 @@ body > #desktop { position: relative; }
 #clock {
   color: #fff;
   font-weight: 600;
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  user-select: none;
+  cursor: pointer; /* still clickable, but no button visuals */
+  transition: opacity 140ms ease;
 }
+
+/* subtle feedback for the secret click sequence */
+#clock.pressed { opacity: 0.85; }
+#clock:active { opacity: 0.8; }
 
 #start-menu {
   position: absolute;

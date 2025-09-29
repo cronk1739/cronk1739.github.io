@@ -408,14 +408,150 @@
             const clock = document.getElementById('clock');
             function updateClock(){ const now = new Date(); clock.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}); }
             updateClock(); setInterval(updateClock, 1000);
-            // double-click the clock to open the Secret slideshow (password-protected)
-            clock.addEventListener('dblclick', ()=>{
-                const pw = prompt('Enter secret password:');
-                if(!pw) return;
-                // we delegate actual password check to the page but allow shortcut for convenience
-                // open the secret window; the page will show its own overlay if not unlocked
-                createWindow('Secret', 'secret.html', '#111827');
+
+            // Secret: make clock a physical button that requires 3 clicks to open secret.html
+            (function(){
+                let clicks = 0; let timer = null;
+                function reset(){ clicks = 0; clock.classList.remove('pressed'); if(timer){ clearTimeout(timer); timer = null; } }
+                clock.style.cursor = 'pointer';
+                clock.addEventListener('click', ()=>{
+                    clicks++;
+                    clock.classList.add('pressed');
+                    if(timer) clearTimeout(timer);
+                    timer = setTimeout(()=> reset(), 1200);
+                    if(clicks >= 3){ reset(); openSecretModal(); }
+                });
+            })();
+
+            // listen for confirmations from the iframe (iframe is authoritative). Do NOT cache unlocked state here.
+            window.addEventListener('message', (ev)=>{
+                try{
+                    if(ev.data && ev.data.type === 'secret-unlocked'){
+                        // iframe confirmed the user unlocked the secret; we do not set session flags here to avoid bypass.
+                        // Optionally show a brief visual confirmation in the parent UI (left as an exercise).
+                    }
+                }catch(e){}
             });
+
+            // Remove the old dblclick-based password entry; we require 3 clicks now.
+
+            // openSecretModal: reusable password modal + unlock-mode select
+            function openSecretModal(){
+                // quick path removed: always show the password modal so the iframe remains authoritative for unlocking
+                // if a modal already exists, bring it to front
+                    if(document.getElementById('secret-pw-modal')){
+                        const m = document.getElementById('secret-pw-modal'); m.style.zIndex = ++topZ; return;
+                    }
+
+                    // enforce cooldown: if lockUntil exists and is in the future, show the lock modal instead of allowing attempts
+                    function getLockUntil(){ try{ return parseInt(sessionStorage.getItem('secretLockUntil')||'0',10)||0; }catch(e){ return 0; } }
+                    if(getLockUntil() > Date.now()){ showLockModal(); return; }
+
+                    const MAX_ATTEMPTS = 3;
+
+                const modal = document.createElement('div');
+                modal.id = 'secret-pw-modal';
+                modal.style.position = 'fixed';
+                modal.style.left = '0'; modal.style.top = '0'; modal.style.right = '0'; modal.style.bottom = '0';
+                modal.style.display = 'flex'; modal.style.alignItems = 'center'; modal.style.justifyContent = 'center';
+                modal.style.background = 'rgba(0,0,0,0.45)'; modal.style.zIndex = ++topZ;
+
+                const box = document.createElement('div');
+                box.style.width = '360px'; box.style.padding = '16px'; box.style.borderRadius = '8px'; box.style.background = '#fff'; box.style.color = '#111'; box.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
+                // simplified modal: proxy-only (parent forwards password to iframe); no explanation text
+                box.innerHTML = `<div style="font-weight:700; margin-bottom:8px">Enter password</div><div style="margin-bottom:8px; font-size:13px; color:#444">This area is protected. You have ${MAX_ATTEMPTS} attempts.</div><input id="secret-pw-input" type="password" style="width:100%; padding:8px; margin-bottom:8px; box-sizing:border-box; border:1px solid #ccc; border-radius:4px" /><label style="display:flex; gap:8px; align-items:center; font-size:13px; margin-bottom:8px"><input id="secret-show" type="checkbox" style="width:16px; height:16px;"> Show password</label><div style="display:flex; gap:8px; justify-content:flex-end"><button id="secret-cancel" style="padding:6px 10px;">Cancel</button><button id="secret-submit" style="padding:6px 10px; background:#2563eb; color:#fff; border:none; border-radius:4px">Unlock</button></div><div id="secret-pw-feedback" style="margin-top:8px; font-size:13px; color:#b91c1c; display:none"></div>`;
+
+                modal.appendChild(box);
+                document.body.appendChild(modal);
+
+                const input = box.querySelector('#secret-pw-input');
+                const submit = box.querySelector('#secret-submit');
+                const cancel = box.querySelector('#secret-cancel');
+                const feedback = box.querySelector('#secret-pw-feedback');
+
+                function closeModal(){ try{ modal.remove(); }catch(e){} }
+
+                // attempt helpers stored in sessionStorage so lockout survives modal closes
+                function getAttempts(){ try{ return parseInt(sessionStorage.getItem('secretAttempts')||'0',10) || 0; }catch(e){ return 0; } }
+                function setAttempts(n){ try{ sessionStorage.setItem('secretAttempts', String(n)); }catch(e){} }
+                function clearAttempts(){ try{ sessionStorage.removeItem('secretAttempts'); }catch(e){} }
+
+                function fail(msg){ const prev = getAttempts(); const attempts = prev + 1; setAttempts(attempts); const remaining = Math.max(0, MAX_ATTEMPTS - attempts); feedback.style.display='block'; feedback.textContent = msg || 'Incorrect password'; if(remaining > 0) feedback.textContent += ` — ${remaining} attempt${remaining>1? 's':''} left`; if(attempts >= MAX_ATTEMPTS){ feedback.textContent = 'Too many failed attempts.'; submit.disabled = true; input.disabled = true; const until = Date.now() + 60*1000; sessionStorage.setItem('secretLockUntil', String(until)); setTimeout(closeModal, 1200); showLockModal(); } }
+
+                // normalize input to avoid invisible characters or accidental extra spaces
+                function normalizePw(s){ try{ s = (s || '').normalize('NFKC'); }catch(e){} s = s.replace(/\u200B/g,''); // zero-width
+                    s = s.replace(/\s+/g,' ').trim(); return s; }
+
+                function getLockUntil(){ try{ return parseInt(sessionStorage.getItem('secretLockUntil')||'0',10)||0; }catch(e){ return 0; } }
+
+                function showLockModal(){
+                    const until = getLockUntil();
+                    if(until <= Date.now()){
+                        // cooldown already passed
+                        sessionStorage.removeItem('secretAttempts');
+                        sessionStorage.removeItem('secretLockUntil');
+                        try{ delete document.documentElement.dataset.secretLocked; }catch(e){}
+                        return;
+                    }
+                    const lm = document.createElement('div');
+                    lm.id = 'secret-lock-modal';
+                    lm.style.position = 'fixed'; lm.style.left = '0'; lm.style.top = '0'; lm.style.right = '0'; lm.style.bottom = '0';
+                    lm.style.display = 'flex'; lm.style.alignItems = 'center'; lm.style.justifyContent = 'center';
+                    lm.style.background = 'rgba(0,0,0,0.45)'; lm.style.zIndex = ++topZ;
+                    const inner = document.createElement('div');
+                    inner.style.width = '320px'; inner.style.padding = '16px'; inner.style.borderRadius = '8px';
+                    inner.style.background = '#fff'; inner.style.color = '#111'; inner.style.boxShadow = '0 8px 30px rgba(0,0,0,0.4)';
+                    inner.innerHTML = `<div style="font-weight:700; margin-bottom:8px">Too many attempts</div><div id='lock-msg' style='font-size:13px; color:#444; margin-bottom:8px'>Please wait...</div><div style='text-align:right'><button id='lock-close' style='padding:6px 8px'>Close</button></div>`;
+                    lm.appendChild(inner);
+                    document.body.appendChild(lm);
+
+                    // set a document-level flag so the parent knows the secret is locked
+                    try{ document.documentElement.dataset.secretLocked = '1'; }catch(e){}
+
+                    const msg = inner.querySelector('#lock-msg');
+                    const closeBtn = inner.querySelector('#lock-close');
+                    let interval = null;
+
+                    function update(){
+                        const rem = Math.max(0, getLockUntil() - Date.now());
+                        if(rem <= 0){
+                            try{ lm.remove(); }catch(e){}
+                            try{ delete document.documentElement.dataset.secretLocked; }catch(e){}
+                            sessionStorage.removeItem('secretAttempts');
+                            sessionStorage.removeItem('secretLockUntil');
+                            clearInterval(interval);
+                            return;
+                        }
+                        const s = Math.ceil(rem/1000);
+                        msg.textContent = `Try again in ${s} second${s!==1?'s':''}.`;
+                    }
+                    update();
+                    interval = setInterval(update, 1000);
+
+                    // Close button only dismisses the UI; it does NOT clear attempts or lift the lock.
+                    closeBtn.addEventListener('click', ()=>{ try{ lm.remove(); }catch(e){} clearInterval(interval); });
+                }
+
+                function trySubmit(){ const raw = input.value || ''; const val = normalizePw(raw); const allowed = ['M30W'];
+                    // proxy-only: parent forwards the typed password to the iframe and iframe must confirm
+                    if(allowed.includes(val)){
+                        clearAttempts(); sessionStorage.removeItem('secretLockUntil'); closeModal(); const winEl = createWindow('Secret', 'secret.html', '#111827');
+                        try{ const iframe = winEl.querySelector('iframe'); if(iframe){ iframe.addEventListener('load', ()=>{ try{ iframe.contentWindow.postMessage({ type: 'try-unlock', password: val }, location.origin); }catch(e){} }); }
+                        }catch(e){}
+                    } else {
+                        fail('Incorrect password'); input.value=''; input.focus();
+                    }
+                }
+
+                // show password toggle
+                const showToggle = box.querySelector('#secret-show'); if(showToggle){ showToggle.addEventListener('change', (e)=>{ input.type = showToggle.checked ? 'text' : 'password'; }); }
+
+                submit.addEventListener('click', trySubmit);
+                input.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') trySubmit(); if(e.key === 'Escape') { closeModal(); } });
+                cancel.addEventListener('click', ()=> closeModal());
+                // ensure the input can be typed into (delay a tick to allow focus)
+                setTimeout(()=>{ try{ input.focus(); input.select(); }catch(e){} }, 50);
+            }
         })();
         </script>
     </body>
