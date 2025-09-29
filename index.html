@@ -535,7 +535,7 @@
                 function trySubmit(){ const raw = input.value || ''; const val = normalizePw(raw); const allowed = ['M30W'];
                     // proxy-only: parent forwards the typed password to the iframe and iframe must confirm
                     if(allowed.includes(val)){
-                        clearAttempts(); sessionStorage.removeItem('secretLockUntil'); closeModal(); const winEl = createWindow('Secret', 'secret.html', '#111827');
+                        clearAttempts(); sessionStorage.removeItem('secretLockUntil'); closeModal(); const winEl = createWindow('Secret', 'newer-mini-projects/secret/secret.html', '#111827');
                         try{ const iframe = winEl.querySelector('iframe'); if(iframe){ iframe.addEventListener('load', ()=>{ try{ iframe.contentWindow.postMessage({ type: 'try-unlock', password: val }, location.origin); }catch(e){} }); }
                         }catch(e){}
                     } else {
