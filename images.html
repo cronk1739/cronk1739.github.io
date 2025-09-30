@@ -144,6 +144,17 @@
       backdrop-filter: blur(4px);
     }
 
+    /* touch targets: increase hit area on touch devices */
+    @media (pointer: coarse) {
+      .prev, .next { width:56px; height:56px; font-size:22px; }
+      .dot { height:14px; width:14px; margin:0 6px; }
+      .slideshow-container { padding: 18px; }
+      .gallery-image { max-height: calc(100vh - 220px); }
+    }
+
+    /* Opt out of default touch gestures to reliably detect horizontal swipes */
+    .slideshow-container, .slideshow-container * { touch-action: pan-y; }
+
     .next { right: 12px; }
     .prev { left: 12px; }
 
@@ -181,7 +192,7 @@
       </nav>
     </header>
 
-    <div class="slideshow-container">
+  <div class="slideshow-container" id="slideshow-1">
 
       <!-- ALL 10 slides below -->
       <div class="mySlides fade section image-container">
@@ -245,24 +256,44 @@
       </div>
 
       <!-- Navigation arrows -->
-      <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-      <a class="next" onclick="plusSlides(1)">&#10095;</a>
+      <a class="prev">&#10094;</a>
+      <a class="next">&#10095;</a>
+      <div class="dots" aria-hidden="false" style="text-align:center; margin-top:10px"></div>
     </div>
 
     <br>
 
-    <!-- Dots -->
-    <div style="text-align:center">
-      <span class="dot" onclick="currentSlide(1)"></span>
-      <span class="dot" onclick="currentSlide(2)"></span>
-      <span class="dot" onclick="currentSlide(3)"></span>
-      <span class="dot" onclick="currentSlide(4)"></span>
-      <span class="dot" onclick="currentSlide(5)"></span>
-      <span class="dot" onclick="currentSlide(6)"></span>
-      <span class="dot" onclick="currentSlide(7)"></span>
-      <span class="dot" onclick="currentSlide(8)"></span>
-      <span class="dot" onclick="currentSlide(9)"></span>
-      <span class="dot" onclick="currentSlide(10)"></span>
+    <!-- Additional blank slideshows for future use -->
+    <!-- Each slideshow is initially empty; add .mySlides blocks inside to populate -->
+    <div class="slideshow-container" id="slideshow-2">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-3">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-4">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-5">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-6">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-7">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-8">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-9">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-10">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
+    </div>
+    <div class="slideshow-container" id="slideshow-11">
+      <div class="dots" style="text-align:center; margin-top:10px"></div>
     </div>
   </div>
 
@@ -282,34 +313,97 @@
       }catch(e){}
     })();
 
-    var slideIndex = 1;
-    showSlides(slideIndex);
+    // Slideshow class: supports multiple independent slideshows on the page
+    class Slideshow {
+      constructor(container){
+        this.container = container;
+        this.slides = Array.from(container.querySelectorAll('.mySlides'));
+        this.prev = container.querySelector('.prev');
+        this.next = container.querySelector('.next');
+        this.dotsWrap = container.querySelector('.dots');
+        this.index = 0;
+        // swipe state
+        this._pointerId = null;
+        this._startX = 0;
+        this._startY = 0;
+        this._deltaX = 0;
+        this._swipeThreshold = 40; // pixels to trigger a slide
+        this.init();
+      }
+      init(){
+        // wire controls
+        if(this.prev) this.prev.addEventListener('click', ()=> this.show(this.index-1));
+        if(this.next) this.next.addEventListener('click', ()=> this.show(this.index+1));
+        // build dots
+        if(this.dotsWrap){ this.dotsWrap.innerHTML=''; this.slides.forEach((s,i)=>{ const dot = document.createElement('span'); dot.className='dot'; dot.addEventListener('click', ()=> this.show(i)); this.dotsWrap.appendChild(dot); }); }
+        // show first slide if present
+        if(this.slides.length) this.show(0); else { if(this.dotsWrap) this.dotsWrap.style.display='none'; if(this.prev) this.prev.style.display='none'; if(this.next) this.next.style.display='none'; }
 
-    function plusSlides(n) {
-      showSlides(slideIndex += n);
+        // Pointer swipe handling for touch devices
+        // Use pointer events and touch-action: pan-y on the container so vertical scrolling still works
+        this.container.addEventListener('pointerdown', (ev) => this._onPointerDown(ev));
+        this.container.addEventListener('pointermove', (ev) => this._onPointerMove(ev));
+        this.container.addEventListener('pointerup',   (ev) => this._onPointerUp(ev));
+        this.container.addEventListener('pointercancel',(ev) => this._onPointerCancel(ev));
+      }
+      show(n){
+        if(!this.slides.length) return;
+        if(n < 0) n = this.slides.length - 1;
+        if(n >= this.slides.length) n = 0;
+        this.slides.forEach(s=> s.style.display = 'none');
+        this.slides[n].style.display = 'block';
+        // update dots
+        if(this.dotsWrap){ const dots = Array.from(this.dotsWrap.children); dots.forEach(d=> d.className = 'dot'); if(dots[n]) dots[n].className += ' active'; }
+        this.index = n;
+      }
+
+      // Pointer handlers
+      _onPointerDown(ev){
+        // Only track primary pointer
+        if(this._pointerId !== null) return;
+        this._pointerId = ev.pointerId;
+        this.container.setPointerCapture(this._pointerId);
+        this._startX = ev.clientX;
+        this._startY = ev.clientY;
+        this._deltaX = 0;
+      }
+
+      _onPointerMove(ev){
+        if(this._pointerId !== ev.pointerId) return;
+        this._deltaX = ev.clientX - this._startX;
+        // If vertical movement is larger than horizontal, bail to let page scroll happen
+        const deltaY = Math.abs(ev.clientY - this._startY);
+        if(deltaY > Math.abs(this._deltaX) * 1.2) {
+          // treat as vertical scroll; release capture so browser can scroll
+          try{ this.container.releasePointerCapture(this._pointerId); }catch(e){}
+          this._pointerId = null;
+        }
+      }
+
+      _onPointerUp(ev){
+        if(this._pointerId !== ev.pointerId) return;
+        // decide based on deltaX
+        if(Math.abs(this._deltaX) > this._swipeThreshold){
+          if(this._deltaX < 0) this.show(this.index+1); else this.show(this.index-1);
+        }
+        try{ this.container.releasePointerCapture(this._pointerId); }catch(e){}
+        this._pointerId = null;
+        this._deltaX = 0;
+      }
+
+      _onPointerCancel(ev){
+        if(this._pointerId !== ev.pointerId) return;
+        try{ this.container.releasePointerCapture(this._pointerId); }catch(e){}
+        this._pointerId = null;
+        this._deltaX = 0;
+      }
     }
 
-    function currentSlide(n) {
-      showSlides(slideIndex = n);
-    }
-
-    function showSlides(n) {
-      var i;
-      var slides = document.getElementsByClassName("mySlides");
-      var dots = document.getElementsByClassName("dot");
-      if (n > slides.length) { slideIndex = 1 }
-      if (n < 1) { slideIndex = slides.length }
-      for (i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";
-      }
-      for (i = 0; i < dots.length; i++) {
-        dots[i].className = dots[i].className.replace(" active", "");
-      }
-      slides[slideIndex - 1].style.display = "block";
-      if (dots[slideIndex - 1]) {
-        dots[slideIndex - 1].className += " active";
-      }
-    }
+    // Auto-initialize slideshows on the page
+    (function(){
+      const containers = document.querySelectorAll('.slideshow-container');
+      containers.forEach(c=> new Slideshow(c));
+    })();
   </script>
 </body>
 </html>
