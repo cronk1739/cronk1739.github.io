@@ -1,11 +1,9 @@
-// server.js  –  zero-linter-warning version
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { readFileSync } from 'fs';
 
 const PORT = process.env.PORT || 3000;
 
-/* ---------- static file server ---------- */
 const server = createServer((req, res) => {
   const url = req.url === '/' ? '/index.html' : req.url;
   try {
@@ -15,11 +13,13 @@ const server = createServer((req, res) => {
   } catch { res.writeHead(404).end('Not found'); }
 });
 
-/* ---------- WebSocket relay ---------- */
-const wss = new WebSocketServer({ server });   // <- now declared AFTER server
+const wss = new WebSocketServer({ server });
 wss.on('connection', ws => {
   ws.on('message', data => {
-    wss.clients.forEach(c => c !== ws && c.readyState === 1 && c.send(data));
+    // send to **all** clients (including sender)
+    wss.clients.forEach(c => {
+      if (c.readyState === 1) c.send(data);   // removed the c !== ws check
+    });
   });
 });
 
