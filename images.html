@@ -1,129 +1,207 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
   <title>Images</title>
   <style>
-    /* General reset and layout */
-    body{margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#001233;color:#f2f2f2}
-    .section{border:2px solid #ff4d94;margin:20px auto;padding:8px;max-width:1000px;background:rgba(30,20,30,0.9);border-radius:12px}
-    header.section{display:flex;justify-content:space-between;align-items:center}
-    header h1{margin:0;font-size:1.6rem}
+    /* ----------  ROOT GRADIENT  ---------- */
+    html,body{
+      height:100%;
+      margin:0;
+      background:radial-gradient(ellipse at center, #ff4d94 0%, #6a00ff 70%, #001233 100%) fixed;
+      font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+      color:#f2f2f2;
+    }
+
+    /* ----------  HEADER  ---------- */
+    header.section{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:14px 20px;margin:20px auto;max-width:1000px;
+      background:rgba(255,255,255,.06);
+      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,.12);border-radius:14px;
+    }
+    header h1{font-size:1.65rem;font-weight:700;margin:0}
     nav{display:flex;gap:12px}
+    nav a{color:#ff4d94;text-decoration:none;font-weight:700;transition:color .2s}
+    nav a:hover{color:#fff}
 
-    /* Large image constraints (for full-size view) */
-    .gallery-image{box-sizing:border-box;margin:0 auto;max-width:92vw;max-height:80vh;width:auto;height:auto;object-fit:contain;border-radius:8px}
+    /* ----------  GALLERY WRAPPER  ---------- */
+    .section{
+      margin:20px auto;padding:14px;max-width:1000px;
+      background:rgba(255,255,255,.05);
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,.1);border-radius:16px;
+    }
 
-    /* Embedded iframe tweaks */
-    body.embedded{background:transparent!important}
-    body.embedded .section{background:transparent!important;border-color:rgba(255,77,148,0.12)!important;box-shadow:none!important}
-    body.embedded .gallery-image{max-width:calc(100% - 12px)!important;max-height:70vh!important}
+    /* ----------  THUMB GRID  ---------- */
+    .gallery-grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:14px
+    }
+    .thumb{
+      position:relative;background:rgba(255,255,255,.04);
+      border-radius:10px;overflow:hidden;cursor:pointer;
+      transition:transform .25s ease,box-shadow .25s ease
+    }
+    .thumb:hover{
+      transform:scale(1.13);
+      box-shadow:0 0 20px 2px rgba(255,77,148,.55)
+    }
+    .thumb img{width:100%;height:70px;object-fit:cover;display:block}
+    .thumb .caption{
+      font-size:11px;padding:6px 4px 8px;
+      color:#222;font-weight:700;text-align:center;
+      background:rgba(255,255,255,.55)
+    }
 
-    /* Thumbnail grid (smaller) */
-    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px}
-    .thumb{background:rgba(255,255,255,0.02);border-radius:6px;overflow:hidden}
-    .thumb img{width:100%;height:64px;object-fit:cover;display:block}
-    .thumb .caption{font-size:11px;padding:6px;color:#ddd;text-align:center}
+    /* ----------  LIGHTBOX  ---------- */
+    #lightbox-overlay{
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.94);z-index:9999
+    }
+    #lightbox-content{
+      max-width:92%;max-height:86vh;
+      display:flex;flex-direction:column;align-items:center
+    }
+    #lightbox-image{
+      max-width:88vw;max-height:78vh;border-radius:10px;object-fit:contain
+    }
+    #lightbox-close,#lightbox-prev,#lightbox-next{
+      position:absolute;background:transparent;border:0;color:#fff;
+      font-size:26px;padding:10px;cursor:pointer;user-select:none
+    }
+    #lightbox-close{top:14px;right:22px}
+    #lightbox-prev{left:14px}
+    #lightbox-next{right:14px}
+    /* 75 % larger thumbs + keep them sharp */
+.thumb{
+  transform-origin:center;
+  scale:1.75;                /* 75 % bigger */
+  image-rendering:crisp-edges;
+}
+/* keep the hover grow on *top* of the 75 % base */
+.thumb:hover{ scale:1.9; }   /* 1.75 → 1.9 (still pops) */
+/* crisper captions on dark gradient */
+.thumb .caption{
+  font-size:13px;      /* slightly bigger text */
+  padding:8px 6px;
+  color:#111;          /* almost black */
+  font-weight:800;
+  background:rgba(255,255,255,.65);
+}
 
-    /* Lightbox constraints: ensure images always fit on-screen */
-    #lightbox-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.94);z-index:9999}
-    #lightbox-content{max-width:92%;max-height:86vh;display:flex;flex-direction:column;align-items:center}
-    #lightbox-image{max-width:88vw;max-height:78vh;border-radius:8px;object-fit:contain}
-    #lightbox-close,#lightbox-prev,#lightbox-next{background:transparent;border:0;color:#fff;font-size:20px;padding:8px;cursor:pointer}
+/* softer shadow so cards don’t look glued */
+.thumb{
+  box-shadow:0 4px 18px rgba(0,0,0,.25);
+}
   </style>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="portfolio.html">Portfolio</a>
-        <a href="images.html">Images</a>
-      </nav>
-    </header>
+</head>
+<body>
 
-  <!-- Gallery grid (Google Images style) -->
-  <div class="gallery-wrapper section">
-    <div class="gallery-grid" id="gallery-grid">
-      <!-- thumbnails populated below -->
-      <div class="thumb"><img data-src="/assets/img_RandomGuy.JPG" src="/assets/img_RandomGuy.JPG" alt="Awesome sauce guy"><div class="caption">Awesome sauce guy</div></div>
-      <div class="thumb"><img data-src="/assets/img_EliChristianMartin.JPG" src="/assets/img_EliChristianMartin.JPG" alt="Eli Christian Martin"><div class="caption">Eli Christian Martin</div></div>
-      <div class="thumb"><img data-src="/assets/img_Kawaiilittleboy.JPG" src="/assets/img_Kawaiilittleboy.JPG" alt="Me emoting on the haters"><div class="caption">Me emoting on the haters</div></div>
-      <div class="thumb"><img data-src="/assets/img_MineCraftStevedeath.JPG" src="/assets/img_MineCraftStevedeath.JPG" alt="Steve death"><div class="caption">Steve death</div></div>
-      <div class="thumb"><img data-src="/assets/img_SkibidiTrashcanSebastian.JPG" src="/assets/img_SkibidiTrashcanSebastian.JPG" alt="Skibidi Trashcan Sebastian"><div class="caption">Skibidi Trashcan Sebastian</div></div>
-      <div class="thumb"><img data-src="/assets/img_StairGremlin.JPG" src="/assets/img_StairGremlin.JPG" alt="Stair Gremlin"><div class="caption">Stair Gremlin</div></div>
-      <div class="thumb"><img data-src="/assets/img_SuperRichTeacher.JPG" src="/assets/img_SuperRichTeacher.JPG" alt="Super Rich Teacher"><div class="caption">This rich teacher made $10k a month</div></div>
-      <div class="thumb"><img data-src="/assets/img_TheLioneatsthesmallchild.JPG" src="/assets/img_TheLioneatsthesmallchild.JPG" alt="Evil Lion"><div class="caption">Evil lion</div></div>
-      <div class="thumb"><img data-src="/assets/img_ThugBoy89.JPG" src="/assets/img_ThugBoy89.JPG" alt="Thug Boy"><div class="caption">#being a thug</div></div>
-      <div class="thumb"><img data-src="/assets/img_Vendermachine.JPG" src="/assets/img_Vendermachine.JPG" alt="Vending Machine"><div class="caption">Venger machine eat</div></div>
+<header class="section">
+  <h1>Images</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="portfolio.html">Portfolio</a>
+    <a href="images.html">Images</a>
+  </nav>
+</header>
+
+<!--  THUMBNAIL GRID  -->
+<div class="gallery-wrapper section">
+  <div class="gallery-grid" id="gallery-grid">
+    <div class="thumb">
+      <img src="/assets/img_RandomGuy.JPG" alt="Awesome sauce guy">
+      <div class="caption">Awesome sauce guy</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_EliChristianMartin.JPG" alt="Eli Christian Martin">
+      <div class="caption">Eli Christian Martin</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_Kawaiilittleboy.JPG" alt="Me emoting on the haters">
+      <div class="caption">Me emoting on the haters</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_MineCraftStevedeath.JPG" alt="Steve death">
+      <div class="caption">Steve death</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_SkibidiTrashcanSebastian.JPG" alt="Skibidi Trashcan Sebastian">
+      <div class="caption">Skibidi Trashcan Sebastian</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_StairGremlin.JPG" alt="Stair Gremlin">
+      <div class="caption">Stair Gremlin</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_SuperRichTeacher.JPG" alt="Super Rich Teacher">
+      <div class="caption">This rich teacher made $10k a month</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_TheLioneatsthesmallchild.JPG" alt="Evil Lion">
+      <div class="caption">Evil lion</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_ThugBoy89.JPG" alt="Thug Boy">
+      <div class="caption">#being a thug</div>
+    </div>
+    <div class="thumb">
+      <img src="/assets/img_Vendermachine.JPG" alt="Vending Machine">
+      <div class="caption">Venger machine eat</div>
     </div>
   </div>
+</div>
 
-  <!-- Lightbox overlay -->
-  <div id="lightbox-overlay" aria-hidden="true">
-    <button id="lightbox-close" aria-label="Close">✕</button>
-    <button id="lightbox-prev" aria-label="Previous">◀</button>
-    <div id="lightbox-content">
-      <img id="lightbox-image" src="" alt="">
-      <div id="lightbox-caption"></div>
-    </div>
-    <button id="lightbox-next" aria-label="Next">▶</button>
+<!--  LIGHTBOX  -->
+<div id="lightbox-overlay" aria-hidden="true">
+  <button id="lightbox-close" aria-label="Close">✕</button>
+  <button id="lightbox-prev" aria-label="Previous">◀</button>
+  <div id="lightbox-content">
+    <img id="lightbox-image" src="" alt="">
+    <div id="lightbox-caption"></div>
   </div>
-  </div>
+  <button id="lightbox-next" aria-label="Next">▶</button>
+</div>
 
-  <!-- JavaScript -->
-  <script>
-    // If this page is embedded inside an iframe (desktop window), hide the top header/nav
-    (function(){
-      try{
-        if(window.self !== window.top){
-          document.body.classList.add('embedded');
-          const hdr = document.getElementById('top-header'); if(hdr) hdr.style.display = 'none';
-          // make slideshow fill container height
-          const slideCont = document.querySelector('.slideshow-container'); if(slideCont) { slideCont.style.maxWidth = '100%'; slideCont.style.margin = '6px auto'; }
-          // ensure images don't exceed iframe viewport
-          const imgs = document.querySelectorAll('.gallery-image'); imgs.forEach(img=>{ img.style.maxHeight = 'calc(100% - 120px)'; img.style.maxWidth = '100%'; });
-        }
-      }catch(e){}
-    })();
+<script>
+/* ----------  LIGHTBOX LOGIC  ---------- */
+(function(){
+  const thumbs   = Array.from(document.querySelectorAll('.thumb img'));
+  const overlay  = document.getElementById('lightbox-overlay');
+  const lbImg    = document.getElementById('lightbox-image');
+  const lbCap    = document.getElementById('lightbox-caption');
+  const lbClose  = document.getElementById('lightbox-close');
+  const lbPrev   = document.getElementById('lightbox-prev');
+  const lbNext   = document.getElementById('lightbox-next');
+  let idx = 0;
 
-    // Gallery + Lightbox behavior (Google Images style)
-    (function(){
-      const gallery = document.getElementById('gallery-grid');
-      const thumbs = Array.from(gallery.querySelectorAll('.thumb img'));
-      const overlay = document.getElementById('lightbox-overlay');
-      const lbImage = document.getElementById('lightbox-image');
-      const lbCaption = document.getElementById('lightbox-caption');
-      const lbClose = document.getElementById('lightbox-close');
-      const lbPrev = document.getElementById('lightbox-prev');
-      const lbNext = document.getElementById('lightbox-next');
-      let currentIndex = 0;
+  function open(i){
+    idx = i;
+    const img = thumbs[i];
+    lbImg.src = img.src;
+    lbImg.alt = img.alt;
+    lbCap.textContent = img.parentElement.querySelector('.caption').textContent;
+    overlay.style.display = 'flex';
+    overlay.setAttribute('aria-hidden','false');
+  }
+  function close(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); }
+  function prev(){ open((idx - 1 + thumbs.length) % thumbs.length); }
+  function next(){ open((idx + 1) % thumbs.length); }
 
-      function openLightbox(i){
-        const img = thumbs[i];
-        if(!img) return;
-        currentIndex = i;
-        lbImage.src = img.dataset.src || img.src;
-        lbImage.alt = img.alt || '';
-        lbCaption.textContent = img.parentElement.querySelector('.caption')?.textContent || '';
-        overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden','false');
-      }
+  thumbs.forEach((img,i)=> img.addEventListener('click',()=> open(i)) );
+  lbClose.addEventListener('click', close);
+  lbPrev.addEventListener('click', prev);
+  lbNext.addEventListener('click', next);
+  document.addEventListener('keydown', e=>{
+    if(overlay.style.display !== 'flex') return;
+    if(e.key === 'Escape') close();
+    if(e.key === 'ArrowLeft') prev();
+    if(e.key === 'ArrowRight') next();
+  });
+  overlay.addEventListener('click', e=>{ if(e.target === overlay) close(); });
+})();
+</script>
 
-      function closeLightbox(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); lbImage.src=''; }
-      function prev(){ openLightbox((currentIndex-1+thumbs.length)%thumbs.length); }
-      function next(){ openLightbox((currentIndex+1)%thumbs.length); }
-
-      thumbs.forEach((t,i)=> t.addEventListener('click', ()=> openLightbox(i)) );
-      lbClose.addEventListener('click', closeLightbox);
-      lbPrev.addEventListener('click', prev);
-      lbNext.addEventListener('click', next);
-
-      // keyboard navigation
-      document.addEventListener('keydown', (e)=>{
-        if(overlay.style.display !== 'flex') return;
-        if(e.key === 'Escape') closeLightbox();
-        if(e.key === 'ArrowLeft') prev();
-        if(e.key === 'ArrowRight') next();
-      });
-
-      // close when clicking outside image
-      overlay.addEventListener('click', (ev)=>{ if(ev.target === overlay) closeLightbox(); });
-    })();
-  </script>
 </body>
 </html>
