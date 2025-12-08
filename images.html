@@ -94,6 +94,11 @@
 .thumb{
   box-shadow:0 4px 18px rgba(0,0,0,.25);
 }
+    /* big bottom button */
+    .big-bottom-button{
+      position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+      background:linear-gradient(90deg,#ff4d94,#6a00ff);color:#fff;padding:14px 22px;border-radius:999px;font-weight:800;text-decoration:none;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:12000;border:0;display:inline-block}
+    .big-bottom-button:active{transform:translateX(-50%) translateY(1px)}
   </style>
 </head>
 <body>
@@ -202,6 +207,10 @@
   overlay.addEventListener('click', e=>{ if(e.target === overlay) close(); });
 })();
 </script>
+
+
+<!-- fixed big button linking to scientific calculator -->
+<a class="big-bottom-button" href="calculator.html?mode=scientific" aria-label="Open scientific calculator">Scientific Mode</a>
 
 </body>
 </html>

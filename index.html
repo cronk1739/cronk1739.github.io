@@ -129,6 +129,42 @@
                         // also try to reduce padding on first .section if present
                         const firstSection = idoc.querySelector('.section');
                         if(firstSection) { firstSection.style.paddingTop = '6px'; firstSection.style.paddingBottom = '6px'; }
+                        // apply dark-mode styling inside iframe based on parent settings
+                        try{
+                            const parentSettings = loadSettings();
+                            const dark = parentSettings && parentSettings.darkMode;
+                            const styleId = 'injected-dark-mode';
+                            if(dark){
+                                if(idoc && idoc.head && !idoc.getElementById(styleId)){
+                                    const s = idoc.createElement('style');
+                                    s.id = styleId;
+                                    s.textContent = '\n/* Injected dark-mode: use dark grey background and white text; preserve photographs/icons */\n:root, html.dark-mode, body.dark-mode { background-color: #121212 !important; color: #ffffff !important; }\nbody, html, .section, .gallery-wrapper, .gallery-grid, .thumb, .calc-container, .app-wrap, header.section, .blank-paragraph, .app-header, .titlebar, .content { background-color: #121212 !important; color: #ffffff !important; }\n/* preserve photographs and icon images */\nimg, svg, .app-icon, .app-icon img { filter: none !important; opacity: 1 !important; color: initial !important; fill: initial !important; }\n';
+                                    idoc.head.appendChild(s);
+                                }
+                                try{ idoc.documentElement.classList.add('dark-mode'); if(idoc.body) idoc.body.classList.add('dark-mode'); }catch(e){}
+                                // If this app has a drawing canvas, ensure the canvas background matches dark mode
+                                try{
+                                    const canvas = idoc.getElementById('paint');
+                                    if(canvas){
+                                        // set CSS background so transparent areas look dark
+                                        canvas.style.background = '#121212';
+                                        // attempt to fill initial canvas pixels if a 2D context exists
+                                        try{
+                                            const ctx = canvas.getContext && canvas.getContext('2d');
+                                            if(ctx){
+                                                const w = canvas.width || canvas.clientWidth || parseInt(idoc.defaultView.getComputedStyle(canvas).width)||0;
+                                                const h = canvas.height || canvas.clientHeight || parseInt(idoc.defaultView.getComputedStyle(canvas).height)||0;
+                                                if(w && h){ ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = '#121212'; ctx.fillRect(0,0,w,h); ctx.restore(); }
+                                            }
+                                        }catch(e){}
+                                    }
+                                }catch(e){}
+                            } else {
+                                const existing = idoc.getElementById(styleId);
+                                if(existing) existing.remove();
+                                try{ idoc.documentElement.classList.remove('dark-mode'); if(idoc.body) idoc.body.classList.remove('dark-mode'); }catch(e){}
+                            }
+                        }catch(e){}
                     }catch(e){}
                 });
 
@@ -273,6 +309,9 @@
                     try{ document.body.style.fontFamily = settings.fontFamily; }catch(e){}
                 }
                 if(settings.wallpaper){ document.getElementById('desktop').style.backgroundImage = `url('${settings.wallpaper}')`; }
+                // apply dark mode to parent UI
+                if(settings.darkMode){ document.documentElement.classList.add('dark-mode'); document.body.classList.add('dark-mode'); }
+                else { document.documentElement.classList.remove('dark-mode'); document.body.classList.remove('dark-mode'); }
                 if(settings.taskbarColor){ const taskbar = document.getElementById('taskbar'); if(taskbar){ const color = settings.taskbarColor; const opacity = parseFloat(settings.taskbarOpacity || 1); const r = parseInt(color.slice(1, 3), 16); const g = parseInt(color.slice(3, 5), 16); const b = parseInt(color.slice(5, 7), 16); taskbar.style.setProperty('background', `rgba(${r}, ${g}, ${b}, ${opacity})`, 'important'); } }
                 if(settings.iconStyle){ const taskbar = document.getElementById('taskbar'); if(taskbar) { taskbar.classList.remove('icon-square', 'icon-circle', 'icon-rounded'); if(settings.iconStyle !== 'square') taskbar.classList.add('icon-' + settings.iconStyle); } }
                 if(settings.appIcons){
@@ -387,6 +426,13 @@
                 const customStackInput = win.querySelector('#custom-stack-input');
                 const previewArea = win.querySelector('#settings-preview');
                 const resetBtn = win.querySelector('#reset-settings');
+                // insert dark mode toggle
+                const darkModeLabel = document.createElement('label');
+                darkModeLabel.style.display = 'flex'; darkModeLabel.style.gap = '8px'; darkModeLabel.style.alignItems = 'center'; darkModeLabel.style.margin = '8px 0';
+                darkModeLabel.innerHTML = '<input type="checkbox" id="dark-mode-checkbox" /> Dark mode for apps';
+                // insert the label just above the save/reset buttons
+                const btnsDiv = resetBtn.parentNode;
+                if(btnsDiv && btnsDiv.parentNode) btnsDiv.parentNode.insertBefore(darkModeLabel, btnsDiv);
                 const taskbarColorInput = win.querySelector('#taskbar-color-input');
                 const taskbarOpacityInput = win.querySelector('#taskbar-opacity-input');
                 const iconStyleSelect = win.querySelector('#icon-style-select');
@@ -418,6 +464,56 @@
                 if(cur.taskbarOpacity) taskbarOpacityInput.value = cur.taskbarOpacity;
                 else taskbarOpacityInput.value = '1';
                 if(cur.iconStyle) iconStyleSelect.value = cur.iconStyle;
+                // set dark mode checkbox initial state
+                const darkCheckbox = win.querySelector('#dark-mode-checkbox'); if(darkCheckbox) darkCheckbox.checked = !!cur.darkMode;
+                // when the user toggles the dark mode checkbox, apply immediately to parent and all open iframes
+                if(darkCheckbox){
+                    darkCheckbox.addEventListener('change', ()=>{
+                        const enabled = !!darkCheckbox.checked;
+                        // update stored settings object
+                        try{
+                            const st = loadSettings() || {};
+                            st.darkMode = enabled;
+                            saveSettings(st);
+                            applySettings(st);
+                        }catch(e){}
+
+                        // apply to all currently open iframes
+                        const STYLE_ID = 'injected-dark-mode';
+                        const cssText = '\n/* injected dark-mode (dark grey bg + white text) */\n:root, html.dark-mode, body.dark-mode { background-color: #121212 !important; color: #ffffff !important; }\nbody, html, .section, .gallery-wrapper, .gallery-grid, .thumb, .calc-container, .app-wrap, header.section, .blank-paragraph, .app-header, .titlebar, .content { background-color: #121212 !important; color: #ffffff !important; }\nimg, svg, .app-icon, .app-icon img { filter: none !important; opacity: 1 !important; color: initial !important; fill: initial !important; }\n';
+
+                        const iframeEls = document.querySelectorAll('#windows iframe');
+                        iframeEls.forEach(IFR => {
+                            try{
+                                const idoc = IFR.contentDocument || IFR.contentWindow.document;
+                                if(!idoc) return;
+                                if(enabled){
+                                    // inject style if missing
+                                    if(idoc && idoc.head && !idoc.getElementById(STYLE_ID)){
+                                        const s = idoc.createElement('style'); s.id = STYLE_ID; s.textContent = cssText; idoc.head.appendChild(s);
+                                    }
+                                    try{ idoc.documentElement.classList.add('dark-mode'); if(idoc.body) idoc.body.classList.add('dark-mode'); }catch(e){}
+                                    // If this is the drawing app, set canvas background and fill initial pixels
+                                    try{
+                                        const canvas = idoc.getElementById('paint');
+                                        if(canvas){
+                                            canvas.style.background = '#121212';
+                                            const ctx = canvas.getContext && canvas.getContext('2d');
+                                            if(ctx){
+                                                const w = canvas.width || canvas.clientWidth || parseInt(idoc.defaultView.getComputedStyle(canvas).width)||0;
+                                                const h = canvas.height || canvas.clientHeight || parseInt(idoc.defaultView.getComputedStyle(canvas).height)||0;
+                                                if(w && h){ ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = '#121212'; ctx.fillRect(0,0,w,h); ctx.restore(); }
+                                            }
+                                        }
+                                    }catch(e){}
+                                } else {
+                                    const existing = idoc.getElementById(STYLE_ID); if(existing) existing.remove();
+                                    try{ idoc.documentElement.classList.remove('dark-mode'); if(idoc.body) idoc.body.classList.remove('dark-mode'); }catch(e){}
+                                }
+                            }catch(e){}
+                        });
+                    });
+                }
 
                 // Handle wallpaper dropdown
                 wallpaperSelect.addEventListener('change', ()=>{
@@ -609,7 +705,8 @@
                         taskbarColor: taskbarColorInput.value, 
                         taskbarOpacity: taskbarOpacityInput.value, 
                         iconStyle: iconStyleSelect.value,
-                        appIcons: Object.keys(appIcons).length > 0 ? appIcons : undefined
+                        appIcons: Object.keys(appIcons).length > 0 ? appIcons : undefined,
+                        darkMode: !!(win.querySelector('#dark-mode-checkbox') && win.querySelector('#dark-mode-checkbox').checked)
                     }; 
                     saveSettings(settings); 
                     applySettings(settings); 

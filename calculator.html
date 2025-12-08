@@ -176,7 +176,8 @@
       
       <button onclick="appendNumber('0')">0</button>
       <button onclick="appendNumber('.')">.</button>
-      <button class="function" onclick="appendFunction('%')">%</button>
+      <!-- Changed: big grey button now toggles scientific mode -->
+      <button class="function" onclick="toggleMode()">Scientific</button>
       <button class="equals" onclick="calculate()">=</button>
     </div>
     <div class="advanced-buttons" id="advanced-buttons">
@@ -374,6 +375,16 @@
       else if (e.key === 'Backspace') { e.preventDefault(); deleteLast(); }
       else if (e.key === 'Escape') clearDisplay();
     });
+
+    // If the page was opened with ?mode=scientific, enable scientific mode on load
+    (function(){
+      try{
+        const params = new URLSearchParams(location.search);
+        if(params.get('mode') === 'scientific'){
+          if(!scientificMode){ toggleMode(); }
+        }
+      }catch(e){}
+    })();
   </script>
 </body>
 </html>
