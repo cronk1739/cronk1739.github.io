@@ -32,6 +32,10 @@
                     <img class="app-icon" src="assets/iconbook.png" alt="Studies" />
                     <span>Studies</span>
                 </div>
+                <div class="icon" data-href="calculator.html" data-color="#6366f1" tabindex="0">
+                    <span class="glyph folder indigo"></span>
+                    <span>Calculator</span>
+                </div>
                 <!-- Secret icon removed per request -->
             </div>
 
@@ -269,6 +273,69 @@
                     try{ document.body.style.fontFamily = settings.fontFamily; }catch(e){}
                 }
                 if(settings.wallpaper){ document.getElementById('desktop').style.backgroundImage = `url('${settings.wallpaper}')`; }
+                if(settings.taskbarColor){ const taskbar = document.getElementById('taskbar'); if(taskbar){ const color = settings.taskbarColor; const opacity = parseFloat(settings.taskbarOpacity || 1); const r = parseInt(color.slice(1, 3), 16); const g = parseInt(color.slice(3, 5), 16); const b = parseInt(color.slice(5, 7), 16); taskbar.style.setProperty('background', `rgba(${r}, ${g}, ${b}, ${opacity})`, 'important'); } }
+                if(settings.iconStyle){ const taskbar = document.getElementById('taskbar'); if(taskbar) { taskbar.classList.remove('icon-square', 'icon-circle', 'icon-rounded'); if(settings.iconStyle !== 'square') taskbar.classList.add('icon-' + settings.iconStyle); } }
+                if(settings.appIcons){
+                    // Apply custom app icons
+                    const iconMap = {
+                        'settings': '[data-href="settings"]',
+                        'portfolio': '[data-href="portfolio.html"]',
+                        'images': '[data-href="images.html"]',
+                        'drawing': '[data-href="newer-mini-projects/mini-projects/drawing-app/drawing.html"]',
+                        'music': '[data-href="newer-mini-projects/music-app/index.html"]',
+                        'studies': '[data-href="studies.html"]',
+                        'calculator': '[data-href="calculator.html"]'
+                    };
+                    Object.keys(settings.appIcons).forEach(appId => {
+                        const selector = iconMap[appId];
+                        if(selector) {
+                            const iconEl = document.querySelector('.icon' + selector);
+                            if(iconEl) {
+                                const customIcon = settings.appIcons[appId];
+                                const existingImg = iconEl.querySelector('.app-icon');
+                                const existingGlyph = iconEl.querySelector('.glyph');
+                                const existingCustom = iconEl.querySelectorAll('.app-icon-custom');
+                                
+                                // Remove all existing custom icons
+                                existingCustom.forEach(el => el.remove());
+                                
+                                // Check if it's a URL (contains / or .)
+                                const isUrl = customIcon.includes('/') || customIcon.includes('.');
+                                
+                                if(!isUrl) {
+                                    // Emoji or text
+                                    if(existingImg) existingImg.remove();
+                                    if(existingGlyph) existingGlyph.remove();
+                                    // Add as text/emoji
+                                    const iconSpan = document.createElement('span');
+                                    iconSpan.className = 'app-icon-custom';
+                                    iconSpan.textContent = customIcon;
+                                    iconSpan.style.fontSize = '28px';
+                                    iconSpan.style.display = 'block';
+                                    iconSpan.style.lineHeight = '1';
+                                    iconSpan.style.marginBottom = '2px';
+                                    iconEl.insertBefore(iconSpan, iconEl.querySelector('span'));
+                                } else {
+                                    // URL - treat as image
+                                    if(existingGlyph) existingGlyph.remove();
+                                    if(existingImg) {
+                                        existingImg.src = customIcon;
+                                    } else {
+                                        const img = document.createElement('img');
+                                        img.className = 'app-icon';
+                                        img.src = customIcon;
+                                        img.alt = 'App Icon';
+                                        img.style.width = '32px';
+                                        img.style.height = '32px';
+                                        img.style.objectFit = 'contain';
+                                        img.style.marginBottom = '2px';
+                                        iconEl.insertBefore(img, iconEl.querySelector('span'));
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
             }
             function saveSettings(settings){ localStorage.setItem('desktopSettings', JSON.stringify(settings)); applySettings(settings); }
             function loadSettings(){ try{ return JSON.parse(localStorage.getItem('desktopSettings')||'{}'); }catch(e){ return {}; } }
@@ -276,16 +343,38 @@
                 // build a simple in-page settings window (not iframe)
                 const existing = document.querySelector('.window[data-settings]'); if(existing){ existing.style.zIndex = ++topZ; return existing; }
                 const win = document.createElement('div'); win.className = 'window opening'; win.setAttribute('data-settings','true');
-                win.innerHTML = `<div class="titlebar"><span class="title">Settings</span><div class="title-actions"><button class="minimize">–</button><button class="close">✕</button></div></div><div class="content"><div class="settings-form"><label>Font: <select id="font-select"><option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Courier New', monospace">Monospace</option><option value="Georgia, serif">Serif</option><option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter</option><option value="'Poppins', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial">Poppins</option><option value="'Lato', system-ui, Roboto, 'Helvetica Neue', Arial">Lato</option><option value="'Montserrat', system-ui, Roboto, 'Helvetica Neue', Arial">Montserrat</option></select></label><label>Or Google Font (family name): <input id="google-font-input" placeholder="e.g. Roboto" /></label><div style="display:flex;gap:8px"><button id="preview-google">Preview</button><button id="load-google">Load & Save</button></div><label>Custom font stack (CSS): <input id="custom-stack-input" placeholder="e.g. 'Segoe UI', system-ui, sans-serif" /></label><div id="settings-preview" class="settings-preview">The quick brown fox jumps over the lazy dog — Preview text</div><label>Wallpaper URL: <input id="wallpaper-input" placeholder="assets/bliss.jpg"></label><div style="margin-top:10px; display:flex; gap:8px"><button id="save-settings">Save</button><button id="reset-settings">Reset to Default</button></div></div></div><div class="resizer" aria-hidden="true"></div>`;
+                win.innerHTML = `<div class="titlebar"><span class="title">Settings</span><div class="title-actions"><button class="minimize">–</button><button class="fullscreen">⛶</button><button class="close">✕</button></div></div><div class="content"><div class="settings-form"><label>Font: <select id="font-select"><option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Courier New', monospace">Monospace</option><option value="Georgia, serif">Serif</option><option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter</option><option value="'Poppins', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial">Poppins</option><option value="'Lato', system-ui, Roboto, 'Helvetica Neue', Arial">Lato</option><option value="'Montserrat', system-ui, Roboto, 'Helvetica Neue', Arial">Montserrat</option></select></label><label>Custom font stack (CSS): <input id="custom-stack-input" placeholder="e.g. 'Segoe UI', system-ui, sans-serif" /></label><div id="settings-preview" class="settings-preview">The quick brown fox jumps over the lazy dog — Preview text</div><label>Wallpaper: <select id="wallpaper-select"><option value="assets/bliss.jpg">Bliss (Default)</option><option value="assets/img_EliChristianMartin.JPG">Eli Christian Martin</option><option value="assets/img_Kawaiilittleboy.JPG">Kawaii Little Boy</option><option value="assets/img_MineCraftStevedeath.JPG">Minecraft Steve Death</option><option value="assets/img_RandomGuy.JPG">Random Guy</option><option value="assets/img_SkibidiTrashcanSebastian.JPG">Skibidi Trashcan Sebastian</option><option value="assets/img_StairGremlin.JPG">Stair Gremlin</option><option value="assets/img_SuperRichTeacher.JPG">Super Rich Teacher</option><option value="assets/img_TheLioneatsthesmallchild.JPG">The Lion Eats The Small Child</option><option value="assets/img_ThugBoy89.JPG">Thug Boy 89</option><option value="assets/img_Vendermachine.JPG">Vender Machine</option><option value="custom">Custom URL</option></select></label><input id="wallpaper-input" placeholder="Custom wallpaper URL" style="display:none;" /><label>Taskbar Color: <input id="taskbar-color-input" type="color" /></label><label>Taskbar Opacity: <input id="taskbar-opacity-input" type="range" min="0.3" max="1" step="0.1" style="width: 100%;" /></label><label>Icon Style: <select id="icon-style-select"><option value="square">Square</option><option value="circle">Circle</option><option value="rounded">Rounded</option></select></label><label style="cursor:pointer;"><input type="checkbox" id="custom-icons-toggle" /> Customize App Icons</label><div id="icon-customizer" style="display:none; border:1px solid #ddd; border-radius:6px; padding:10px; margin-top:10px; max-height:200px; overflow-y:auto;"><div style="font-size:13px; font-weight:bold; margin-bottom:8px;">Click an app to customize its icon URL:</div><div id="app-icons-list"></div></div><div style="margin-top:10px; display:flex; gap:8px"><button id="save-settings">Save</button><button id="reset-settings">Reset to Default</button></div></div></div><div class="resizer" aria-hidden="true"></div>`;
                 document.getElementById('windows').appendChild(win);
                 win.style.zIndex = ++topZ;
                 // position
                 const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
                 const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-                const w = 420, h = 260; win.style.position='absolute'; win.style.width = w+'px'; win.style.height = h+'px'; win.style.left = Math.max(10, Math.floor((vw - w)/2)) + 'px'; win.style.top = Math.max(10, Math.floor((vh - h)/2)) + 'px';
-                // wire close/minimize
+                const w = 600, h = 500; win.style.position='absolute'; win.style.width = w+'px'; win.style.height = h+'px'; win.style.left = Math.max(10, Math.floor((vw - w)/2)) + 'px'; win.style.top = Math.max(10, Math.floor((vh - h)/2)) + 'px';
+                // wire close/minimize/fullscreen
                 win.querySelector('.close').addEventListener('click', ()=> win.remove());
                 win.querySelector('.minimize').addEventListener('click', ()=> win.style.display='none');
+                win.querySelector('.fullscreen').addEventListener('click', ()=>{
+                    win.classList.toggle('fullscreen');
+                    if(win.classList.contains('fullscreen')){
+                        win.style.position = 'fixed';
+                        win.style.left = '0';
+                        win.style.top = '0';
+                        win.style.width = '100%';
+                        win.style.height = '100%';
+                        win.style.zIndex = ++topZ;
+                        win.querySelector('.resizer').style.display = 'none';
+                    } else {
+                        win.style.position = 'absolute';
+                        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+                        const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+                        const w = 600, h = 500;
+                        win.style.width = w+'px';
+                        win.style.height = h+'px';
+                        win.style.left = Math.max(10, Math.floor((vw - w)/2)) + 'px';
+                        win.style.top = Math.max(10, Math.floor((vh - h)/2)) + 'px';
+                        win.querySelector('.resizer').style.display = 'block';
+                    }
+                });
                 // basic drag
                 (function(){ const bar = win.querySelector('.titlebar'); let pid=null, sx=0, sy=0, ox=0, oy=0; function mv(e){ if(e.pointerId!==pid) return; win.style.left = (ox + e.clientX - sx) + 'px'; win.style.top = (oy + e.clientY - sy) + 'px'; } function up(e){ if(e.pointerId!==pid) return; try{ bar.releasePointerCapture(pid);}catch(err){} pid=null; document.removeEventListener('pointermove', mv); document.removeEventListener('pointerup', up); } bar.addEventListener('pointerdown', (e)=>{ if(e.target.closest('button') || e.target.closest('.title-actions')) return; pid=e.pointerId; bar.setPointerCapture(pid); sx=e.clientX; sy=e.clientY; const r=win.getBoundingClientRect(); ox=r.left; oy=r.top; document.addEventListener('pointermove', mv); document.addEventListener('pointerup', up); }); })();
                 // resizer (allow settings window to be resized)
@@ -293,13 +382,14 @@
                 // wire save button
                 const saveBtn = win.querySelector('#save-settings');
                 const fontSelect = win.querySelector('#font-select');
+                const wallpaperSelect = win.querySelector('#wallpaper-select');
                 const wallpaperInput = win.querySelector('#wallpaper-input');
-                const googleInput = win.querySelector('#google-font-input');
-                const previewBtn = win.querySelector('#preview-google');
-                const loadGoogleBtn = win.querySelector('#load-google');
                 const customStackInput = win.querySelector('#custom-stack-input');
                 const previewArea = win.querySelector('#settings-preview');
                 const resetBtn = win.querySelector('#reset-settings');
+                const taskbarColorInput = win.querySelector('#taskbar-color-input');
+                const taskbarOpacityInput = win.querySelector('#taskbar-opacity-input');
+                const iconStyleSelect = win.querySelector('#icon-style-select');
                 const cur = loadSettings();
                 if(cur.fontFamily) {
                     fontSelect.value = cur.fontFamily;
@@ -311,40 +401,33 @@
                         if(match) fontSelect.value = match.value;
                     }
                 }
-                if(cur.wallpaper) wallpaperInput.value = cur.wallpaper;
-                if(cur.googleFont) googleInput.value = cur.googleFont;
-                if(cur.customStack) customStackInput.value = cur.customStack;
-
-                // helper to inject google font link
-                function injectGoogleFont(family){
-                    if(!family) return;
-                    // normalize family (e.g., 'Roboto' -> 'Roboto:400,700') ; keep simple and request regular weight
-                    const fam = encodeURIComponent(family.trim().replace(/\s+/g,' '));
-                    const href = `https://fonts.googleapis.com/css2?family=${fam}:wght@400;700&display=swap`;
-                    // remove any previous injected link with data-google-font
-                    const prev = document.querySelector('link[data-google-font]'); if(prev) prev.remove();
-                    const link = document.createElement('link'); link.rel='stylesheet'; link.href = href; link.setAttribute('data-google-font', family);
-                    document.head.appendChild(link);
+                if(cur.wallpaper) {
+                    // check if it's one of the preset options
+                    const match = Array.from(wallpaperSelect.options).find(o=>o.value === cur.wallpaper);
+                    if(match) {
+                        wallpaperSelect.value = cur.wallpaper;
+                    } else {
+                        wallpaperSelect.value = 'custom';
+                        wallpaperInput.value = cur.wallpaper;
+                        wallpaperInput.style.display = 'block';
+                    }
                 }
+                if(cur.customStack) customStackInput.value = cur.customStack;
+                if(cur.taskbarColor) taskbarColorInput.value = cur.taskbarColor;
+                else taskbarColorInput.value = '#0b2b4a';
+                if(cur.taskbarOpacity) taskbarOpacityInput.value = cur.taskbarOpacity;
+                else taskbarOpacityInput.value = '1';
+                if(cur.iconStyle) iconStyleSelect.value = cur.iconStyle;
 
-                previewBtn.addEventListener('click', ()=>{
-                    const fam = googleInput.value.trim(); if(!fam) return alert('Enter a Google Font family name to preview, e.g. Roboto');
-                    injectGoogleFont(fam);
-                    // apply to page immediately using the family name + fallback
-                    const cssVal = `'${fam}', ${fontSelect.value}`;
-                    document.documentElement.style.setProperty('--desktop-font', cssVal);
-                    try{ document.body.style.fontFamily = cssVal; }catch(e){}
-                    previewArea.style.fontFamily = cssVal;
-                });
-
-                loadGoogleBtn.addEventListener('click', ()=>{
-                    const fam = googleInput.value.trim(); if(!fam) return alert('Enter a Google Font family name to load');
-                    injectGoogleFont(fam);
-                    const cssVal = `'${fam}', ${fontSelect.value}`;
-                    const settings = { fontFamily: cssVal, wallpaper: wallpaperInput.value || 'assets/bliss.jpg', googleFont: fam, customStack: customStackInput.value || undefined };
-                    saveSettings(settings);
-                    previewArea.style.fontFamily = cssVal;
-                    alert('Google Font loaded and settings saved');
+                // Handle wallpaper dropdown
+                wallpaperSelect.addEventListener('change', ()=>{
+                    if(wallpaperSelect.value === 'custom') {
+                        wallpaperInput.style.display = 'block';
+                    } else {
+                        wallpaperInput.style.display = 'none';
+                        // preview the selected wallpaper
+                        document.getElementById('desktop').style.backgroundImage = `url('${wallpaperSelect.value}')`;
+                    }
                 });
 
                 // preview custom stack live
@@ -354,6 +437,137 @@
                         previewArea.style.fontFamily = val;
                     } else {
                         previewArea.style.fontFamily = getComputedStyle(document.documentElement).getPropertyValue('--desktop-font');
+                    }
+                });
+
+                // Live preview taskbar color
+                function updateTaskbarColor(){
+                    const taskbar = document.getElementById('taskbar');
+                    if(!taskbar) return;
+                    const color = taskbarColorInput.value;
+                    const opacity = parseFloat(taskbarOpacityInput.value);
+                    // convert hex to rgba
+                    const r = parseInt(color.slice(1, 3), 16);
+                    const g = parseInt(color.slice(3, 5), 16);
+                    const b = parseInt(color.slice(5, 7), 16);
+                    taskbar.style.setProperty('background', `rgba(${r}, ${g}, ${b}, ${opacity})`, 'important');
+                }
+                taskbarColorInput.addEventListener('input', updateTaskbarColor);
+
+                // Live preview taskbar opacity
+                taskbarOpacityInput.addEventListener('input', updateTaskbarColor);
+
+                // Live preview icon style
+                iconStyleSelect.addEventListener('change', ()=>{
+                    const style = iconStyleSelect.value;
+                    const taskbar = document.getElementById('taskbar');
+                    if(taskbar) {
+                        taskbar.classList.remove('icon-square', 'icon-circle', 'icon-rounded');
+                        if(style !== 'square') {
+                            taskbar.classList.add('icon-' + style);
+                        }
+                    }
+                });
+
+                // Handle app icon customization
+                const customIconsToggle = win.querySelector('#custom-icons-toggle');
+                const iconCustomizer = win.querySelector('#icon-customizer');
+                const appIconsList = win.querySelector('#app-icons-list');
+                
+                // Default icons mapping for restoration
+                const defaultIcons = {
+                    'settings': { type: 'img', src: 'https://images.vexels.com/media/users/3/143276/isolated/preview/98336182a8a47d620c44bc80a1a4abdc-cog-wheel.png' },
+                    'portfolio': { type: 'glyph', class: 'glyph folder green' },
+                    'images': { type: 'img', src: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLvwmXlstUSTVmA0C2KWphEIlqJr1mk3ySrQ&s' },
+                    'drawing': { type: 'img', src: 'assets/drawing-icon.svg' },
+                    'music': { type: 'img', src: 'assets/musicnote.png' },
+                    'studies': { type: 'img', src: 'assets/iconbook.png' },
+                    'calculator': { type: 'glyph', class: 'glyph folder indigo' }
+                };
+                
+                const appList = [
+                    { id: 'settings', label: 'Settings' },
+                    { id: 'portfolio', label: 'Portfolio' },
+                    { id: 'images', label: 'Images' },
+                    { id: 'drawing', label: 'Drawing' },
+                    { id: 'music', label: 'Music' },
+                    { id: 'studies', label: 'Studies' },
+                    { id: 'calculator', label: 'Calculator' }
+                ];
+                
+                // Build app icons list UI
+                appIconsList.innerHTML = appList.map(app => `
+                    <div style="display:flex; gap:6px; align-items:center; padding:6px; border-bottom:1px solid #eee;">
+                        <span style="min-width:80px; font-weight:500;">${app.label}:</span>
+                        <input type="text" class="app-icon-input" data-app="${app.id}" placeholder="URL or emoji" style="flex:1; padding:4px 6px; border:1px solid #ccc; border-radius:3px;" />
+                        <button class="clear-icon-btn" data-app="${app.id}" style="padding:4px 8px; font-size:12px;">Clear</button>
+                    </div>
+                `).join('');
+                
+                // Load current custom icons
+                if(cur.appIcons) {
+                    appList.forEach(app => {
+                        const input = appIconsList.querySelector(`input[data-app="${app.id}"]`);
+                        if(input && cur.appIcons[app.id]) {
+                            input.value = cur.appIcons[app.id];
+                        }
+                    });
+                }
+                
+                // Show/hide icon customizer
+                customIconsToggle.addEventListener('change', ()=>{
+                    if(customIconsToggle.checked) {
+                        iconCustomizer.style.display = 'block';
+                    } else {
+                        iconCustomizer.style.display = 'none';
+                    }
+                });
+                
+                // Clear individual app icons
+                appIconsList.addEventListener('click', (e)=>{
+                    if(e.target.classList.contains('clear-icon-btn')) {
+                        const appId = e.target.dataset.app;
+                        appIconsList.querySelector(`input[data-app="${appId}"]`).value = '';
+                        
+                        // Restore original icon immediately
+                        const iconMap = {
+                            'settings': '[data-href="settings"]',
+                            'portfolio': '[data-href="portfolio.html"]',
+                            'images': '[data-href="images.html"]',
+                            'drawing': '[data-href="newer-mini-projects/mini-projects/drawing-app/drawing.html"]',
+                            'music': '[data-href="newer-mini-projects/music-app/index.html"]',
+                            'studies': '[data-href="studies.html"]',
+                            'calculator': '[data-href="calculator.html"]'
+                        };
+                        
+                        const selector = iconMap[appId];
+                        if(selector) {
+                            const iconEl = document.querySelector('.icon' + selector);
+                            if(iconEl && defaultIcons[appId]) {
+                                const defaultIcon = defaultIcons[appId];
+                                const existingImg = iconEl.querySelector('.app-icon');
+                                const existingGlyph = iconEl.querySelector('.glyph');
+                                const customIcons = iconEl.querySelectorAll('.app-icon-custom');
+                                
+                                // Remove all current icon elements
+                                if(existingImg) existingImg.remove();
+                                if(existingGlyph) existingGlyph.remove();
+                                customIcons.forEach(el => el.remove());
+                                
+                                // Restore original icon
+                                if(defaultIcon.type === 'img') {
+                                    const img = document.createElement('img');
+                                    img.className = 'app-icon';
+                                    img.src = defaultIcon.src;
+                                    img.alt = 'App Icon';
+                                    iconEl.insertBefore(img, iconEl.querySelector('span'));
+                                } else if(defaultIcon.type === 'glyph') {
+                                    const glyph = document.createElement('span');
+                                    glyph.className = defaultIcon.class;
+                                    iconEl.insertBefore(glyph, iconEl.querySelector('span'));
+                                }
+                            }
+                        }
                     }
                 });
 
@@ -368,10 +582,40 @@
                     document.body.style.fontFamily = '';
                     // reset wallpaper
                     document.getElementById('desktop').style.backgroundImage = "url('assets/bliss.jpg')";
+                    // reset taskbar styles
+                    const taskbar = document.getElementById('taskbar');
+                    if(taskbar) {
+                        taskbar.style.backgroundColor = '';
+                        taskbar.style.opacity = '';
+                        taskbar.classList.remove('icon-square', 'icon-circle', 'icon-rounded');
+                    }
                     alert('Settings reset. Reloading page to apply defaults.');
                     location.reload();
                 });
-                saveBtn.addEventListener('click', ()=>{ const settings = { fontFamily: customStackInput.value.trim() || fontSelect.value, wallpaper: wallpaperInput.value || 'assets/bliss.jpg', googleFont: googleInput.value || undefined, customStack: customStackInput.value.trim() || undefined }; saveSettings(settings); applySettings(settings); previewArea.style.fontFamily = settings.fontFamily; alert('Settings saved'); });
+                saveBtn.addEventListener('click', ()=>{ 
+                    const wallpaperValue = wallpaperSelect.value === 'custom' ? wallpaperInput.value : wallpaperSelect.value;
+                    // Collect app icons
+                    const appIcons = {};
+                    appList.forEach(app => {
+                        const input = appIconsList.querySelector(`input[data-app="${app.id}"]`);
+                        if(input && input.value.trim()) {
+                            appIcons[app.id] = input.value.trim();
+                        }
+                    });
+                    const settings = { 
+                        fontFamily: customStackInput.value.trim() || fontSelect.value, 
+                        wallpaper: wallpaperValue || 'assets/bliss.jpg', 
+                        customStack: customStackInput.value.trim() || undefined, 
+                        taskbarColor: taskbarColorInput.value, 
+                        taskbarOpacity: taskbarOpacityInput.value, 
+                        iconStyle: iconStyleSelect.value,
+                        appIcons: Object.keys(appIcons).length > 0 ? appIcons : undefined
+                    }; 
+                    saveSettings(settings); 
+                    applySettings(settings); 
+                    previewArea.style.fontFamily = settings.fontFamily; 
+                    alert('Settings saved'); 
+                });
                 setTimeout(()=> win.classList.remove('opening'), 260);
                 return win;
             }

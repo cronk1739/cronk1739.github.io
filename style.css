@@ -145,23 +145,6 @@ ul.notes li::before {
 .list-glyph.yellow::before{ background: #fbbf24; }
 .list-glyph.yellow::after{ background: #f59e0b; }
 
-/* small folder glyph for lists */
-.list-glyph {
-  display: inline-block;
-  width: 18px; height: 14px; margin-right: 8px; vertical-align: middle;
-  position: relative;
-}
-.list-glyph::before{ content: ''; position: absolute; left: 0; right: 0; top: 4px; height: 10px; border-radius: 2px; }
-.list-glyph::after{ content: ''; position: absolute; left: 2px; top: 0; width: 10px; height: 6px; border-radius: 2px 2px 0 0; }
-.list-glyph.blue::before{ background: #3b82f6; }
-.list-glyph.blue::after{ background: #2563eb; }
-.list-glyph.green::before{ background: #34d399; }
-.list-glyph.green::after{ background: #10b981; }
-.list-glyph.red::before{ background: #f87171; }
-.list-glyph.red::after{ background: #ef4444; }
-.list-glyph.yellow::before{ background: #fbbf24; }
-.list-glyph.yellow::after{ background: #f59e0b; }
-
 /* Profile card styles */
 .profile-card {
   position: relative;
@@ -277,6 +260,8 @@ body > #desktop { position: relative; }
 .glyph.folder.yellow::after { background: #f59e0b; }
 .glyph.folder.purple::before { background: #a78bfa; }
 .glyph.folder.purple::after { background: #7c3aed; }
+.glyph.folder.indigo::before { background: #818cf8; }
+.glyph.folder.indigo::after { background: #6366f1; }
 
 .icon.selected {
   background: rgba(0,120,215,0.25);
@@ -383,6 +368,16 @@ body > #desktop { position: relative; }
   transform: none;
   font-family: var(--desktop-font);
 }
+.window.fullscreen {
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0;
+  z-index: 10000 !important;
+  transform: none !important;
+}
 .window .titlebar{
   background: linear-gradient(#f3f3f3,#e6e6e6);
   padding: 4px 8px;
@@ -396,7 +391,8 @@ body > #desktop { position: relative; }
 }
 .window .title-actions { display:flex; gap:6px; align-items:center; }
 .window .title-actions button { background: transparent; border: none; cursor: pointer; font-size: 14px; }
-.window .content{ padding: 6px; height: calc(100% - 34px); box-sizing: border-box; display:flex; flex-direction:column; }
+.window .content{ padding: 6px; height: calc(100% - 34px); box-sizing: border-box; display:flex; flex-direction:column; overflow-y: auto; overflow-x: hidden; }
+.window.fullscreen .content{ height: calc(100% - 34px); }
 .window .content p{ margin:0 0 6px 0; font-size:13px; }
 .window .iframe-wrap{ flex:1; margin-top:6px; }
 .window iframe{ width: 100%; height: 100%; border: none; display:block; }
@@ -421,7 +417,7 @@ body > #desktop { position: relative; }
 
 /* small glyph for taskbar button */
 .task-btn { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 28px; padding: 2px; }
-.task-btn .task-icon { width: 18px; height: 14px; background: linear-gradient(180deg,#6b7280,#374151); border-radius: 3px; display: inline-block; }
+.task-btn .task-icon { width: 20px; height: 20px; background: linear-gradient(180deg,#6b7280,#374151); border-radius: 3px; display: inline-block; }
 
 /* Fullscreen state for windows */
 .window.fullscreen {
@@ -443,9 +439,27 @@ body > #desktop { position: relative; }
 .settings-form { display:flex; flex-direction:column; gap:8px; font-size:14px; }
 .settings-form label { display:flex; justify-content:space-between; gap:10px; align-items:center; }
 .settings-form input[type="text"], .settings-form select { flex:1; padding:6px; border-radius:4px; border:1px solid #ccc; }
+.settings-form input[type="color"] { padding:2px; border-radius:4px; border:1px solid #ccc; cursor:pointer; height:32px; }
+.settings-form input[type="range"] { flex:1; }
 .settings-form button { padding:8px 10px; border-radius:6px; border: none; background:#2563eb; color:#fff; cursor:pointer; }
 /* preview box inside settings */
 .settings-preview { margin-top:6px; padding:10px; border-radius:6px; background: #fafafa; color:#111; border:1px solid #ddd; font-size:14px; }
+
+/* Taskbar icon styles */
+#taskbar .task-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+#taskbar.icon-circle .task-icon {
+  border-radius: 50%;
+}
+
+#taskbar.icon-rounded .task-icon {
+  border-radius: 8px;
+}
 
 
 
