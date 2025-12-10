@@ -35,5 +35,19 @@
       </ul>
     </div>
   </main>
+  <script>
+    (function(){
+      try{
+        const raw = localStorage.getItem('desktopSettings')||'{}';
+        const s = JSON.parse(raw);
+        if(s && s.themeColor){
+          const c = s.themeColor;
+          try{ document.documentElement.style.backgroundColor = c; }catch(e){}
+          try{ document.body.style.backgroundColor = c; }catch(e){}
+          document.querySelectorAll('.section, .portfolio-list, .list-glyph').forEach(el=>{ try{ el.style.backgroundColor = c; }catch(e){} });
+        }
+      }catch(e){}
+    })();
+  </script>
 </body>
 </html>

@@ -16,7 +16,7 @@
                     <span class="glyph folder green"></span>
                     <span>Portfolio</span>
                 </div>
-                <div class="icon" data-href="images.html" data-color="#ef4444" tabindex="0">
+                <div class="icon" data-href="images.html" data-color="#d73a49" tabindex="0">
                     <img class="app-icon" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLvwmXlstUSTVmA0C2KWphEIlqJr1mk3ySrQ&s" alt="Images" />
                     <span>Images</span>
                 </div>
@@ -24,7 +24,7 @@
                     <img class="app-icon" src="assets/drawing-icon.svg" alt="Drawing" />
                     <span>Drawing</span>
                 </div>
-                <div class="icon" data-href="newer-mini-projects/music-app/index.html" data-color="#ef4444" tabindex="0">
+                <div class="icon" data-href="newer-mini-projects/music-app/index.html" data-color="#d73a49" tabindex="0">
                     <img class="app-icon" src="assets/musicnote.png" alt="Music" />
                     <span>Music</span>
                 </div>
@@ -163,6 +163,24 @@
                                 const existing = idoc.getElementById(styleId);
                                 if(existing) existing.remove();
                                 try{ idoc.documentElement.classList.remove('dark-mode'); if(idoc.body) idoc.body.classList.remove('dark-mode'); }catch(e){}
+                            }
+                        }catch(e){}
+                        // apply saved themeColor from parent to newly-loaded iframe
+                        try{
+                            const parentSettings = loadSettings();
+                            const theme = parentSettings && parentSettings.themeColor;
+                            if(theme){
+                                const STYLE_ID_T = 'injected-theme';
+                                const cssT = `body, html, .content, .section, .calc-container, .app-wrap { background-color: ${theme} !important; }`;
+                                try{
+                                    const existingT = idoc.getElementById(STYLE_ID_T);
+                                    if(existingT) existingT.remove();
+                                    if(idoc && idoc.head){ const sT = idoc.createElement('style'); sT.id = STYLE_ID_T; sT.textContent = cssT; idoc.head.appendChild(sT); }
+                                }catch(e){}
+                                try{
+                                    const canvas = idoc.getElementById('paint');
+                                    if(canvas){ canvas.style.background = theme; const ctx = canvas.getContext && canvas.getContext('2d'); if(ctx){ const w = canvas.width || canvas.clientWidth || parseInt(idoc.defaultView.getComputedStyle(canvas).width)||0; const h = canvas.height || canvas.clientHeight || parseInt(idoc.defaultView.getComputedStyle(canvas).height)||0; if(w && h){ ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = theme; ctx.fillRect(0,0,w,h); ctx.restore(); } } }
+                                }catch(e){}
                             }
                         }catch(e){}
                     }catch(e){}
@@ -375,6 +393,91 @@
                         }
                     });
                 }
+                // apply theme color to icons, taskbar buttons, and inject into open apps
+                if(settings.themeColor){
+                    try{
+                        const color = settings.themeColor;
+                        // compute readable text color for this theme
+                        function readableText(hex){
+                            try{
+                                const c = hex.replace('#','');
+                                const r = parseInt(c.substring(0,2),16);
+                                const g = parseInt(c.substring(2,4),16);
+                                const b = parseInt(c.substring(4,6),16);
+                                const srgb = [r,g,b].map(v=>{ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
+                                const lum = 0.2126*srgb[0] + 0.7152*srgb[1] + 0.0722*srgb[2];
+                                const whiteContrast = (1.0 + 0.05) / (lum + 0.05);
+                                const blackContrast = (lum + 0.05) / (0.0 + 0.05);
+                                return whiteContrast >= blackContrast ? '#ffffff' : '#000000';
+                            }catch(e){ return '#ffffff'; }
+                        }
+                        const textColor = readableText(color);
+                        // set CSS var for theme color
+                        document.documentElement.style.setProperty('--theme-color', color);
+                        // apply to desktop icons: do not change the icon background; recolor the glyph instead
+                        // (we inject CSS to recolor the `.glyph.folder` pseudo-elements)
+                        // apply to taskbar task icons
+                        document.querySelectorAll('#taskbar .task-icon').forEach(t=>{ try{ t.style.background = color; }catch(e){} });
+
+                        // inject style into open iframes to change app background
+                        const STYLE_ID = 'injected-theme';
+                        const cssText = `body, html, .content, .section, .calc-container, .app-wrap { background-color: ${color} !important; color: ${textColor} !important; }`;
+                        document.querySelectorAll('#windows iframe').forEach(IFR=>{
+                            try{
+                                const idoc = IFR.contentDocument || IFR.contentWindow.document;
+                                if(!idoc) return;
+                                // remove any existing injected-theme and re-add
+                                const existing = idoc.getElementById(STYLE_ID);
+                                if(existing) existing.remove();
+                                if(idoc && idoc.head){ const s = idoc.createElement('style'); s.id = STYLE_ID; s.textContent = cssText; idoc.head.appendChild(s); }
+                            }catch(e){}
+                        });
+
+                        // additional per-iframe adjustments (canvas background, etc.)
+                        document.querySelectorAll('#windows iframe').forEach(IFR=>{
+                            try{
+                                const idoc = IFR.contentDocument || IFR.contentWindow.document;
+                                if(!idoc) return;
+                                try{
+                                    const canvas = idoc.getElementById('paint');
+                                    if(canvas){
+                                        canvas.style.background = color;
+                                        const ctx = canvas.getContext && canvas.getContext('2d');
+                                        if(ctx){
+                                            const w = canvas.width || canvas.clientWidth || parseInt(idoc.defaultView.getComputedStyle(canvas).width)||0;
+                                            const h = canvas.height || canvas.clientHeight || parseInt(idoc.defaultView.getComputedStyle(canvas).height)||0;
+                                            if(w && h){ ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = color; ctx.fillRect(0,0,w,h); ctx.restore(); }
+                                        }
+                                    }
+                                }catch(e){}
+                            }catch(e){}
+                        });
+
+                        // also apply theme to the in-page Settings window (if open)
+                        try{
+                            const settingsWin = document.querySelector('.window[data-settings]');
+                            if(settingsWin){
+                                const contentEl = settingsWin.querySelector('.content');
+                                const titleEl = settingsWin.querySelector('.titlebar');
+                                try{ if(contentEl) contentEl.style.background = color; }catch(e){}
+                                try{ if(titleEl) titleEl.style.background = color; }catch(e){}
+                            }
+                        }catch(e){}
+                            // also inject a glyph-theme into the parent document to recolor folder glyphs (::before/::after)
+                            try{
+                                const GLYPH_ID = 'injected-glyph-theme';
+                                const existingGlyph = document.getElementById(GLYPH_ID);
+                                if(existingGlyph) existingGlyph.remove();
+                                // remove any preview glyph style left behind
+                                const prevGlyph = document.getElementById('preview-glyph-theme'); if(prevGlyph) prevGlyph.remove();
+                                // compute a slightly darker variant for the 'after' flap
+                                function darken(hex, amount){ try{ const c = hex.replace('#',''); const r = parseInt(c.substring(0,2),16); const g = parseInt(c.substring(2,4),16); const b = parseInt(c.substring(4,6),16); const f = (v)=>Math.max(0, Math.min(255, Math.round(v*(1-amount)))); return '#'+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }catch(e){ return hex; } }
+                                const afterColor = darken(color, 0.15);
+                                const glyphCss = `.icon .glyph.folder::before{ background: ${color} !important; } .icon .glyph.folder::after{ background: ${afterColor} !important; } .window[data-settings] .content, .window[data-settings] .titlebar { color: ${textColor} !important; }`;
+                                const s2 = document.createElement('style'); s2.id = GLYPH_ID; s2.textContent = glyphCss; document.head.appendChild(s2);
+                            }catch(e){}
+                    }catch(e){}
+                }
             }
             function saveSettings(settings){ localStorage.setItem('desktopSettings', JSON.stringify(settings)); applySettings(settings); }
             function loadSettings(){ try{ return JSON.parse(localStorage.getItem('desktopSettings')||'{}'); }catch(e){ return {}; } }
@@ -382,7 +485,19 @@
                 // build a simple in-page settings window (not iframe)
                 const existing = document.querySelector('.window[data-settings]'); if(existing){ existing.style.zIndex = ++topZ; return existing; }
                 const win = document.createElement('div'); win.className = 'window opening'; win.setAttribute('data-settings','true');
-                win.innerHTML = `<div class="titlebar"><span class="title">Settings</span><div class="title-actions"><button class="minimize">–</button><button class="fullscreen">⛶</button><button class="close">✕</button></div></div><div class="content"><div class="settings-form"><label>Font: <select id="font-select"><option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Courier New', monospace">Monospace</option><option value="Georgia, serif">Serif</option><option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter</option><option value="'Poppins', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial">Poppins</option><option value="'Lato', system-ui, Roboto, 'Helvetica Neue', Arial">Lato</option><option value="'Montserrat', system-ui, Roboto, 'Helvetica Neue', Arial">Montserrat</option></select></label><label>Custom font stack (CSS): <input id="custom-stack-input" placeholder="e.g. 'Segoe UI', system-ui, sans-serif" /></label><div id="settings-preview" class="settings-preview">The quick brown fox jumps over the lazy dog — Preview text</div><label>Wallpaper: <select id="wallpaper-select"><option value="assets/bliss.jpg">Bliss (Default)</option><option value="assets/img_EliChristianMartin.JPG">Eli Christian Martin</option><option value="assets/img_Kawaiilittleboy.JPG">Kawaii Little Boy</option><option value="assets/img_MineCraftStevedeath.JPG">Minecraft Steve Death</option><option value="assets/img_RandomGuy.JPG">Random Guy</option><option value="assets/img_SkibidiTrashcanSebastian.JPG">Skibidi Trashcan Sebastian</option><option value="assets/img_StairGremlin.JPG">Stair Gremlin</option><option value="assets/img_SuperRichTeacher.JPG">Super Rich Teacher</option><option value="assets/img_TheLioneatsthesmallchild.JPG">The Lion Eats The Small Child</option><option value="assets/img_ThugBoy89.JPG">Thug Boy 89</option><option value="assets/img_Vendermachine.JPG">Vender Machine</option><option value="custom">Custom URL</option></select></label><input id="wallpaper-input" placeholder="Custom wallpaper URL" style="display:none;" /><label>Taskbar Color: <input id="taskbar-color-input" type="color" /></label><label>Taskbar Opacity: <input id="taskbar-opacity-input" type="range" min="0.3" max="1" step="0.1" style="width: 100%;" /></label><label>Icon Style: <select id="icon-style-select"><option value="square">Square</option><option value="circle">Circle</option><option value="rounded">Rounded</option></select></label><label style="cursor:pointer;"><input type="checkbox" id="custom-icons-toggle" /> Customize App Icons</label><div id="icon-customizer" style="display:none; border:1px solid #ddd; border-radius:6px; padding:10px; margin-top:10px; max-height:200px; overflow-y:auto;"><div style="font-size:13px; font-weight:bold; margin-bottom:8px;">Click an app to customize its icon URL:</div><div id="app-icons-list"></div></div><div style="margin-top:10px; display:flex; gap:8px"><button id="save-settings">Save</button><button id="reset-settings">Reset to Default</button></div></div></div><div class="resizer" aria-hidden="true"></div>`;
+                win.innerHTML = `<div class="titlebar"><span class="title">Settings</span><div class="title-actions"><button class="minimize">–</button><button class="fullscreen">⛶</button><button class="close">✕</button></div></div><div class="content"><div class="settings-form"><label>Font: <select id="font-select"><option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Default</option><option value="Arial, Helvetica, sans-serif">Arial</option><option value="'Courier New', monospace">Monospace</option><option value="Georgia, serif">Serif</option><option value="'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial">Inter</option><option value="'Poppins', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial">Poppins</option><option value="'Lato', system-ui, Roboto, 'Helvetica Neue', Arial">Lato</option><option value="'Montserrat', system-ui, Roboto, 'Helvetica Neue', Arial">Montserrat</option></select></label><label>Custom font stack (CSS): <input id="custom-stack-input" placeholder="e.g. 'Segoe UI', system-ui, sans-serif" /></label><div id="settings-preview" class="settings-preview">The quick brown fox jumps over the lazy dog — Preview text</div><label>Wallpaper: <select id="wallpaper-select"><option value="assets/bliss.jpg">Bliss (Default)</option><option value="assets/img_EliChristianMartin.JPG">Eli Christian Martin</option><option value="assets/img_Kawaiilittleboy.JPG">Kawaii Little Boy</option><option value="assets/img_MineCraftStevedeath.JPG">Minecraft Steve Death</option><option value="assets/img_RandomGuy.JPG">Random Guy</option><option value="assets/img_SkibidiTrashcanSebastian.JPG">Skibidi Trashcan Sebastian</option><option value="assets/img_StairGremlin.JPG">Stair Gremlin</option><option value="assets/img_SuperRichTeacher.JPG">Super Rich Teacher</option><option value="assets/img_TheLioneatsthesmallchild.JPG">The Lion Eats The Small Child</option><option value="assets/img_ThugBoy89.JPG">Thug Boy 89</option><option value="assets/img_Vendermachine.JPG">Vender Machine</option><option value="custom">Custom URL</option></select></label><input id="wallpaper-input" placeholder="Custom wallpaper URL" style="display:none;" /><label>Taskbar Color: <input id="taskbar-color-input" type="color" /></label><label>Taskbar Opacity: <input id="taskbar-opacity-input" type="range" min="0.3" max="1" step="0.1" style="width: 100%;" /></label><label>Icon Style: <select id="icon-style-select"><option value="square">Square</option><option value="circle">Circle</option><option value="rounded">Rounded</option></select></label><label style="cursor:pointer;"><input type="checkbox" id="custom-icons-toggle" /> Customize App Icons</label><div id="icon-customizer" style="display:none; border:1px solid #ddd; border-radius:6px; padding:10px; margin-top:10px; max-height:200px; overflow-y:auto;"><div style="font-size:13px; font-weight:bold; margin-bottom:8px;">Click an app to customize its icon URL:</div><div id="app-icons-list"></div></div>
+                <div style="margin-top:8px;">
+                    <label style="font-weight:600; display:block; margin-bottom:6px;">Theme Store</label>
+                    <div id="theme-store" style="display:flex; gap:8px; align-items:center;">
+                        <button class="theme-button" data-color="#10b981" title="Green" style="width:40px; height:40px; border-radius:6px; border:2px solid transparent; background:#10b981"></button>
+                        <button class="theme-button" data-color="#d73a49" title="Red" style="width:40px; height:40px; border-radius:6px; border:2px solid transparent; background:#d73a49"></button>
+                        <button class="theme-button" data-color="#3b82f6" title="Blue" style="width:40px; height:40px; border-radius:6px; border:2px solid transparent; background:#3b82f6"></button>
+                        <button class="theme-button" data-color="#121212" title="Black" style="width:40px; height:40px; border-radius:6px; border:2px solid transparent; background:#121212"></button>
+                        <button class="theme-button" data-color="#ffffff" title="White" style="width:40px; height:40px; border-radius:6px; border:2px solid #ccc; background:#ffffff"></button>
+                    </div>
+                    <input type="hidden" id="theme-color-input" />
+                </div>
+                <div style="margin-top:10px; display:flex; gap:8px"><button id="save-settings">Save</button><button id="reset-settings">Reset to Default</button></div></div></div><div class="resizer" aria-hidden="true"></div>`;
                 document.getElementById('windows').appendChild(win);
                 win.style.zIndex = ++topZ;
                 // position
@@ -464,6 +579,64 @@
                 if(cur.taskbarOpacity) taskbarOpacityInput.value = cur.taskbarOpacity;
                 else taskbarOpacityInput.value = '1';
                 if(cur.iconStyle) iconStyleSelect.value = cur.iconStyle;
+                // Theme store wiring: initial value and preview
+                const themeInput = win.querySelector('#theme-color-input');
+                const themeButtons = Array.from(win.querySelectorAll('.theme-button'));
+                function applyThemePreview(color){
+                    try{
+                        // choose readable text color for this background
+                        function readableText(hex){
+                            try{
+                                const c = hex.replace('#','');
+                                const r = parseInt(c.substring(0,2),16);
+                                const g = parseInt(c.substring(2,4),16);
+                                const b = parseInt(c.substring(4,6),16);
+                                // relative luminance
+                                const srgb = [r,g,b].map(v=>{ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); });
+                                const lum = 0.2126*srgb[0] + 0.7152*srgb[1] + 0.0722*srgb[2];
+                                // contrast against white: (L1+0.05)/(L2+0.05)
+                                const whiteContrast = (1.0 + 0.05) / (lum + 0.05);
+                                const blackContrast = (lum + 0.05) / (0.0 + 0.05);
+                                // prefer higher contrast (WCAG recommend >=4.5)
+                                return whiteContrast >= blackContrast ? '#ffffff' : '#000000';
+                            }catch(e){ return '#ffffff'; }
+                        }
+                        // preview: do not modify the icon container; recolor glyph via injected style
+                        document.querySelectorAll('.icon').forEach(ic=>{ try{ if(ic.querySelector('.glyph.folder')){ /* no-op: glyph recolor handled via style injection */ } }catch(e){} });
+                        // preview on taskbar
+                        const taskbar = document.getElementById('taskbar'); if(taskbar){ taskbar.style.setProperty('--preview-theme', color); }
+                        // preview on taskbar buttons
+                        document.querySelectorAll('#taskbar .task-icon').forEach(t=>{ try{ t.style.background = color; }catch(e){} });
+                        // inject/refresh a glyph preview style so folder glyphs update color while previewing
+                        try{
+                            const PREV_ID = 'preview-glyph-theme';
+                            const existing = document.getElementById(PREV_ID); if(existing) existing.remove();
+                            function darken(hex, amount){ try{ const c = hex.replace('#',''); const r = parseInt(c.substring(0,2),16); const g = parseInt(c.substring(2,4),16); const b = parseInt(c.substring(4,6),16); const f = (v)=>Math.max(0, Math.min(255, Math.round(v*(1-amount)))); return '#'+[f(r),f(g),f(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }catch(e){ return hex; } }
+                            const after = darken(color, 0.15);
+                            const textColor = readableText(color);
+                            const css = `.icon .glyph.folder::before{ background: ${color} !important; } .icon .glyph.folder::after{ background: ${after} !important; } .settings-preview, .window[data-settings] .content, .window[data-settings] .titlebar { color: ${textColor} !important; }`;
+                            const s = document.createElement('style'); s.id = PREV_ID; s.textContent = css; document.head.appendChild(s);
+                            // also preview the theme inside the settings window itself
+                            try{
+                                const contentEl = win.querySelector('.content');
+                                const titleEl = win.querySelector('.titlebar');
+                                if(contentEl) { contentEl.style.background = color; contentEl.style.color = textColor; }
+                                if(titleEl) { titleEl.style.background = color; titleEl.style.color = textColor; }
+                            }catch(e){}
+                        }catch(e){}
+                    }catch(e){}
+                }
+                if(cur.themeColor){ themeInput.value = cur.themeColor; applyThemePreview(cur.themeColor); themeButtons.forEach(b=>{ b.style.borderColor = (b.dataset.color.toLowerCase() === (cur.themeColor||'').toLowerCase()) ? '#ffffff' : 'transparent'; }); }
+                // theme button clicks
+                themeButtons.forEach(btn=>{
+                    btn.addEventListener('click', ()=>{
+                        const c = btn.dataset.color;
+                        themeButtons.forEach(b=> b.style.borderColor = 'transparent');
+                        btn.style.borderColor = '#ffffff';
+                        if(themeInput) themeInput.value = c;
+                        applyThemePreview(c);
+                    });
+                });
                 // set dark mode checkbox initial state
                 const darkCheckbox = win.querySelector('#dark-mode-checkbox'); if(darkCheckbox) darkCheckbox.checked = !!cur.darkMode;
                 // when the user toggles the dark mode checkbox, apply immediately to parent and all open iframes
@@ -706,7 +879,8 @@
                         taskbarOpacity: taskbarOpacityInput.value, 
                         iconStyle: iconStyleSelect.value,
                         appIcons: Object.keys(appIcons).length > 0 ? appIcons : undefined,
-                        darkMode: !!(win.querySelector('#dark-mode-checkbox') && win.querySelector('#dark-mode-checkbox').checked)
+                        darkMode: !!(win.querySelector('#dark-mode-checkbox') && win.querySelector('#dark-mode-checkbox').checked),
+                        themeColor: (win.querySelector('#theme-color-input') && win.querySelector('#theme-color-input').value) || undefined
                     }; 
                     saveSettings(settings); 
                     applySettings(settings); 

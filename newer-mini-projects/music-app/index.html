@@ -57,5 +57,19 @@
   </div>
 
 <script src="app.js"></script>
+<script>
+  (function(){
+    try{
+      const raw = localStorage.getItem('desktopSettings')||'{}';
+      const s = JSON.parse(raw);
+      if(s && s.themeColor){
+        const c = s.themeColor;
+        try{ document.documentElement.style.backgroundColor = c; }catch(e){}
+        try{ document.body.style.backgroundColor = c; }catch(e){}
+        document.querySelectorAll('.app, .player, .playlist, .app-header, .app-footer').forEach(el=>{ try{ el.style.backgroundColor = c; }catch(e){} });
+      }
+    }catch(e){}
+  })();
+</script>
 </body>
 </html>

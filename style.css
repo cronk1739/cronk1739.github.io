@@ -141,7 +141,7 @@ ul.notes li::before {
 .list-glyph.green::before{ background: #34d399; }
 .list-glyph.green::after{ background: #10b981; }
 .list-glyph.red::before{ background: #f87171; }
-.list-glyph.red::after{ background: #ef4444; }
+.list-glyph.red::after{ background: #d73a49; }
 .list-glyph.yellow::before{ background: #fbbf24; }
 .list-glyph.yellow::after{ background: #f59e0b; }
 
@@ -255,7 +255,7 @@ body > #desktop { position: relative; }
 .glyph.folder.green::before { background: #34d399; }
 .glyph.folder.green::after { background: #10b981; }
 .glyph.folder.red::before { background: #f87171; }
-.glyph.folder.red::after { background: #ef4444; }
+.glyph.folder.red::after { background: #d73a49; }
 .glyph.folder.yellow::before { background: #fbbf24; }
 .glyph.folder.yellow::after { background: #f59e0b; }
 .glyph.folder.purple::before { background: #a78bfa; }

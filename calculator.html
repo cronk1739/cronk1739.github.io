@@ -148,6 +148,7 @@
     <div class="calc-header">
       <h2>Calculator</h2>
       <button class="mode-toggle" onclick="toggleMode()">Scientific</button>
+      <button id="deg-toggle" class="mode-toggle" onclick="toggleDeg()">RAD</button>
     </div>
     <div class="calc-display">
       <div class="calc-history" id="history"></div>
@@ -206,6 +207,7 @@
     let operator = null;
     let shouldResetDisplay = false;
     let scientificMode = false;
+    let degMode = false; // false = radians, true = degrees
 
     function updateDisplay() {
       display.textContent = currentValue.length > 25 ? currentValue.substring(0, 25) + '...' : currentValue;
@@ -280,6 +282,23 @@
       return result;
     }
 
+    // trig helpers that respect degree/radian mode
+    function calcSin(x){
+      return degMode ? Math.sin(x * Math.PI / 180) : Math.sin(x);
+    }
+    function calcCos(x){
+      return degMode ? Math.cos(x * Math.PI / 180) : Math.cos(x);
+    }
+    function calcTan(x){
+      return degMode ? Math.tan(x * Math.PI / 180) : Math.tan(x);
+    }
+
+    function toggleDeg(){
+      degMode = !degMode;
+      const btn = document.getElementById('deg-toggle');
+      if(btn) btn.textContent = degMode ? 'DEG' : 'RAD';
+    }
+
     function calculate() {
       if (scientificMode && !operator) {
         evaluateExpression();
@@ -320,11 +339,16 @@
 
     function evaluateExpression() {
       try {
-        let expr = currentValue
-          .replace(/sin/g, 'Math.sin')
-          .replace(/cos/g, 'Math.cos')
-          .replace(/tan/g, 'Math.tan')
-          .replace(/log/g, 'Math.log10')
+        // Preprocess expression to handle implicit multiplication and then map to JS Math/functions
+        let expr = String(currentValue || '')
+          // insert explicit multiplication where users may have written e.g. "2sin(30)" or ")(" or "2(3)"
+          .replace(/\)\s*\(/g, ')*(')
+          .replace(/(\d|\))\s*(?=[a-zA-Z(])/g, '$1*')
+          // map trig functions to our calc* helpers which respect deg/rad mode
+          .replace(/\bsin\(/g, 'calcSin(')
+          .replace(/\bcos\(/g, 'calcCos(')
+          .replace(/\btan\(/g, 'calcTan(')
+          .replace(/\blog\(/g, 'Math.log10(')
           .replace(/sqrt/g, 'Math.sqrt')
           .replace(/abs/g, 'Math.abs')
           .replace(/factorial/g, 'factorial')
@@ -382,6 +406,21 @@
         const params = new URLSearchParams(location.search);
         if(params.get('mode') === 'scientific'){
           if(!scientificMode){ toggleMode(); }
+        }
+      }catch(e){}
+    })();
+  </script>
+  <script>
+    (function(){
+      try{
+        const raw = localStorage.getItem('desktopSettings')||'{}';
+        const s = JSON.parse(raw);
+        if(s && s.themeColor){
+          const c = s.themeColor;
+          try{ document.documentElement.style.backgroundColor = c; }catch(e){}
+          try{ document.body.style.backgroundColor = c; }catch(e){}
+          // try to color common containers
+          document.querySelectorAll('.content, .section, .calc-container, .app-wrap').forEach(el=>{ try{ el.style.backgroundColor = c; }catch(e){} });
         }
       }catch(e){}
     })();

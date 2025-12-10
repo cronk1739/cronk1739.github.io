@@ -46,10 +46,10 @@
     <label style="display:flex;align-items:center;gap:6px">Smoothing <input type="checkbox" id="smoothing"/></label>
     <button id="toggle-grid">Toggle Grid</button>
     <div id="presets" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:420px">
-      <button class="preset" data-color="#000000" style="background:#000" title="#000000"></button>
+      <button class="preset" data-color="#121212" style="background:#121212" title="#121212"></button>
       <button class="preset" data-color="#333333" style="background:#333" title="#333333"></button>
       <button class="preset" data-color="#555555" style="background:#555" title="#555555"></button>
-      <button class="preset" data-color="#ff0000" style="background:#ff0000" title="#ff0000"></button>
+      <button class="preset" data-color="#d73a49" style="background:#d73a49" title="#d73a49"></button>
       <button class="preset" data-color="#ff7f50" style="background:#ff7f50" title="#ff7f50"></button>
       <button class="preset" data-color="#ffcc00" style="background:#ffcc00" title="#ffcc00"></button>
       <button class="preset" data-color="#00aaff" style="background:#00aaff" title="#00aaff"></button>
@@ -68,5 +68,20 @@
   </div>
 
   <script src="drawing.js"></script>
+  <script>
+    (function(){
+      try{
+        const raw = localStorage.getItem('desktopSettings')||'{}';
+        const s = JSON.parse(raw);
+        if(s && s.themeColor){
+          const c = s.themeColor;
+          try{ document.documentElement.style.backgroundColor = c; }catch(e){}
+          try{ document.body.style.backgroundColor = c; }catch(e){}
+          try{ const canvas = document.getElementById('paint'); if(canvas) { canvas.style.background = c; } }catch(e){}
+          document.querySelectorAll('.app, .toolbar, .controls, #canvas-wrap').forEach(el=>{ try{ el.style.backgroundColor = c; }catch(e){} });
+        }
+      }catch(e){}
+    })();
+  </script>
 </body>
 </html>
